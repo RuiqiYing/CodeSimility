@@ -16,6 +16,15 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
+from app01 import views
+from login.views import register
+from login.views import login
+from login.views import pwd_update
+
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    # path('admin/', admin.site.urls),
+    path('login/',login ),
+    path('login/register/',register),
+    path('login/pwd_update/',pwd_update),
+
 ]
