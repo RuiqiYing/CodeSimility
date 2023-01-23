@@ -15,9 +15,13 @@ def register(request):
     role=request.POST.get('role')
     information="介绍一下自己吧"
     cTime=datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    User.objects.create(username=userName,password=passWord,userid=userId,role=role,ctime=cTime,information=information)
+    try:
+        user = models.User.objects.get(userid=userId)
+        return HttpResponse('用户已存在')
+    except:
+        User.objects.create(username=userName,password=passWord,userid=userId,role=role,ctime=cTime,information=information)
 
-    return JsonResponse({'ret': 0})
+        return HttpResponse('注册成功')
 
 def login(request):
     userId = request.POST.get('userid')
@@ -29,10 +33,12 @@ def login(request):
     corr_id = User.objects.filter(userid=userId).first()
     try:
         user = models.User.objects.get(userid=userId)
-        if user.password == passWord:
+        print(user.role)
+        print(role)
+        if user.password == passWord and str(role) == str(user.role) :
             if role=="0":
                 print("111")
-                return JsonResponse({'ret': 0,'data':"22" })
+                return JsonResponse({'ret': 0,'data':"21" })
             else:
                 print("111")
                 return JsonResponse({'ret': 0,'data':"22" })
@@ -48,7 +54,7 @@ def pwd_update(request):
     try:
         user = models.User.objects.get(userid=userid)
         if user.password == new_pwd:
-            return HttpResponse("两次密码不能相同")
+            return HttpResponse("新旧密码相同")
         else:
             user.password=new_pwd
             user.save()
