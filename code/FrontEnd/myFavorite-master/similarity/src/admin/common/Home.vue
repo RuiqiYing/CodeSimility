@@ -13,7 +13,7 @@
     import vSidebar from './Sidebar.vue';
     export default {
         components:{
-            vHead, vSidebar
+            vHead,vSidebar
         }
     }
 </script>

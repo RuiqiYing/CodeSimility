@@ -27,21 +27,14 @@ def login(request):
     userId = request.POST.get('userid')
     passWord = request.POST.get('password')
     role = request.POST.get('role')
-    # print(userId)
-    # print(passWord)
-    # print(role)
+
+
     corr_id = User.objects.filter(userid=userId).first()
     try:
         user = models.User.objects.get(userid=userId)
-        print(user.role)
-        print(role)
+
         if user.password == passWord and str(role) == str(user.role) :
-            if role=="0":
-                print("111")
-                return JsonResponse({'ret': 0,'data':"21" })
-            else:
-                print("111")
-                return JsonResponse({'ret': 0,'data':"22" })
+            return HttpResponse('登录成功')
         else:
             return HttpResponse('密码错误')
     except:

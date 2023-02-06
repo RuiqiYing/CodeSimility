@@ -78,7 +78,7 @@
 
 
 <script>
-import main from "./main";
+const globalProperties = getCurrentInstance().appContext.config.globalProperties; // 获取全局挂载
 export default {
   data:
 
@@ -121,9 +121,10 @@ export default {
     },
 
   created() {
+    localStorage.setItem("username", "");
     localStorage.setItem("userid", "");
     localStorage.setItem("role", "");
-    localStorage.setItem("id", "");
+    localStorage.setItem("pwd", "");
   },
   methods: {
     register(){  //注册
@@ -139,7 +140,7 @@ export default {
       else{
         this.$http
           .post(
-            main.url + "/login/register/",
+            URL + "/login/register/",
             { userid: this.registerForm.id, password: this.registerForm.newpwd ,role:this.registerForm.role,username:this.registerForm.username},
             {
               headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -213,9 +214,9 @@ export default {
           .then((success) => {
             if (success.data != '密码错误') {
               this.$message({ type: "success", message: "登录成功" });
-              localStorage.setItem("username", this.ruleForm.username);
-              localStorage.setItem("role", success.data.role);
-              localStorage.setItem("id", success.data.id);
+              // localStorage.setItem("userid", this.ruleForm.username);
+              // localStorage.setItem("role", this.ruleForm.role);
+              // localStorage.setItem("pwd", this.ruleForm.password);
               this.$router.push({ path: "/admin" });
               this.ruleForm.username = "";
             } else {

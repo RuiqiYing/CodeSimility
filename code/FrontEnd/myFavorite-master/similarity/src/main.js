@@ -10,6 +10,8 @@ import $ from 'jquery';
 import VueResource from 'vue-resource'
 import  VueQuillEditor from 'vue-quill-editor'
 
+
+
 Vue.use(VueQuillEditor);
 Vue.use(VueResource);
 

@@ -1,24 +1,3 @@
-<template>
-    <div class="login-wrap">
-        <div class="ms-title" style="font-size: 30px">我的收藏夹<span style="font-size: 10px; margin-left: 73px;">
-            <u></u></span>
-        </div>
-        <div class="tab">
-            <el-table :data="data" border ref="multipleTable" >
-                <el-table-column label="网站名称" prop="wname" width="100px" ></el-table-column>
-                <el-table-column label="网站地址" prop="wurl" width="300px" ></el-table-column>
-                <el-table-column label="点击次数" prop="count" width="70px" ></el-table-column>
-                <el-table-column label="创建时间" prop="ctime" width="250px" ></el-table-column>
-                <el-table-column label="操作" width="80px" >
-                    <template slot-scope="scope" width="100px">
-                        <el-button type="text" @click="gotourl(scope.row)" >进入</el-button>
-                    </template>
-                </el-table-column>
-            </el-table>
-        </div>
-        <el-button type="primary" @click="submit()" >登录</el-button>
-    </div>
-</template>
 
 <script>
     import main from './main';
