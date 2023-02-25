@@ -5,7 +5,10 @@
         <h2>我的班级</h2>
       </div>
       <div style="float: right; text-align: right; width: 38%">
-        <el-button class="new_btn" type="primary" @click="dialogFormVisible = true"
+        <el-button
+          class="new_btn"
+          type="primary"
+          @click="dialogFormVisible = true"
           >新增</el-button
         >
       </div>
@@ -49,9 +52,7 @@
     <template #footer>
       <span class="dialog-footer">
         <el-button @click="dialogFormVisible = false">Cancel</el-button>
-        <el-button type="primary" @click="creat()">
-          Confirm
-        </el-button>
+        <el-button type="primary" @click="creat()"> Confirm </el-button>
       </span>
     </template>
   </el-dialog>
@@ -68,7 +69,7 @@ export default {
       form: {
         userid: "",
         classname: "",
-        coursename:"",
+        coursename: "",
       },
 
       tableHeader: {
@@ -109,12 +110,10 @@ export default {
         });
     },
     check(row) {
-      
-      localStorage.setItem("classname",row.classname);
-      localStorage.setItem("coursename",row.coursename);
-      localStorage.setItem("courseid",row.courseid);
-      this.$router.push('homework')
-    
+      localStorage.setItem("classname", row.classname);
+      localStorage.setItem("coursename", row.coursename);
+      localStorage.setItem("courseid", row.courseid);
+      this.$router.push("homework");
     },
     deleteCourse(row) {
       this.$confirm("此操作将永久删除, 是否继续?", "提示", {
@@ -138,7 +137,6 @@ export default {
             )
             .then((res) => {
               if (res.data === "删除成功") {
-                
                 location.reload();
                 this.$message.success("删除成功！");
               } else {
@@ -157,30 +155,34 @@ export default {
           });
         });
     },
-    creat(){
-     if (this.form.coursename === "") {
-         this.$message({ type: "info", message: "课程名必须输入！" });
-     } else if (this.form.classname === "") {
-         this.$message({ type: "info", message: "班级名必须输入！" });
-     } else {
-       axios
-         .post(
-             this.api.url + "/course/creat/",
-             { userid:localStorage.getItem("userid"), coursename: this.form.coursename,classname:this.form.classname },
-             {
-                 headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                 emulateJSON: true,
-             }
-         )
-         .then((success) => {
-             if (success.data == '创建成功') {
-                 this.$message({ type: "success", message: "创建成功" });
-                 this.dialogFormVisible = false
-                 location.reload();
-             } 
-         });
-     }
-   },
+    creat() {
+      if (this.form.coursename === "") {
+        this.$message({ type: "info", message: "课程名必须输入！" });
+      } else if (this.form.classname === "") {
+        this.$message({ type: "info", message: "班级名必须输入！" });
+      } else {
+        axios
+          .post(
+            this.api.url + "/course/creat/",
+            {
+              userid: localStorage.getItem("userid"),
+              coursename: this.form.coursename,
+              classname: this.form.classname,
+            },
+            {
+              headers: { "Content-Type": "application/x-www-form-urlencoded" },
+              emulateJSON: true,
+            }
+          )
+          .then((success) => {
+            if (success.data == "创建成功") {
+              this.$message({ type: "success", message: "创建成功" });
+              this.dialogFormVisible = false;
+              location.reload();
+            }
+          });
+      }
+    },
   },
 };
 </script>

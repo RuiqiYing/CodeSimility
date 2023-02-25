@@ -18,11 +18,11 @@ from django.urls import path, include
 
 
 
-import course.views
-
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('login/',include('login.urls')),
     path('course/',include('course.urls')),
     path('homework/',include('homework.urls')),
+    path('getsimilarity/',include('getsimilarity.urls')),
+    path('information/',include('information.urls')),
 ]

@@ -1,36 +1,27 @@
 <template>
-    
-      
-      
-        
-        <el-menu
-        router 
-    
-          active-text-color="#ffd04b"
-          background-color="#545c64"
-          class="el-menu-vertical-demo"
-          default-active="/course"
-          text-color="#fff"
-          
-        >
-         
-          <el-menu-item index="/course">
-            <el-icon><icon-menu /></el-icon>
-            <span>班级管理</span>
-          </el-menu-item>
-          <el-menu-item index="2">
-            <el-icon><icon-menu /></el-icon>
-            <span>Navigator Two</span>
-          </el-menu-item>
-          <el-menu-item index="3" >
-            <el-icon><document /></el-icon>
-            <span>Navigator Three</span>
-          </el-menu-item>
-      
-        </el-menu>
-  
-  
-  </template>
+  <el-menu
+    router
+    active-text-color="#ffd04b"
+    background-color="#545c64"
+    class="el-menu-vertical-demo"
+    default-active="/course"
+    text-color="#fff"
+    style="height:200px"
+  >
+    <el-menu-item index="/course">
+      <el-icon><icon-menu /></el-icon>
+      <span>班级管理</span>
+    </el-menu-item>
+    <el-menu-item index="/compare">
+      <el-icon><icon-menu /></el-icon>
+      <span>相似度对比</span>
+    </el-menu-item>
+    <el-menu-item index="/information">
+      <el-icon><document /></el-icon>
+      <span>个人信息</span>
+    </el-menu-item>
+  </el-menu>
+</template>
   
   <!-- <script lang="ts" setup>
   import {

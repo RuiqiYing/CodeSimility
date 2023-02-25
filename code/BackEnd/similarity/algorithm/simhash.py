@@ -77,7 +77,7 @@ class SimHashSimilarity(object):
 
     def main(self):
         # 去除停用词
-        jieba.analyse.set_stop_words('./files/stopwords.txt')
+        jieba.analyse.set_stop_words('./algorithm/files/stopwords.txt')
 
         # 提取关键词
         s1 = self.extract_keyword(self.s1)

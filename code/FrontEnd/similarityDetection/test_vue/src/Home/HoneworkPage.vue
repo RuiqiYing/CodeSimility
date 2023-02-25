@@ -116,8 +116,10 @@
           });
       },
       check(row) {
-        this.$router.push('homework')
-        console.log(row.coursename);
+        this.$router.push('detail')
+        localStorage.setItem('homeworkname',row.homeworkname)
+        localStorage.setItem('questionnum',row.questionnum)
+        localStorage.setItem('homeworkid',row.homeworkid)
       },
       deleteHomework(row) {
         this.$confirm("此操作将永久删除, 是否继续?", "提示", {

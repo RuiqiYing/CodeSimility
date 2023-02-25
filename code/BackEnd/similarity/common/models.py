@@ -62,12 +62,12 @@ class Answer (models.Model):
     question = models.TextField(max_length=10000)
     answer=models.TextField(max_length=10000)
     questiontype = models.CharField(max_length=255)
-    highsimilarityA=models.CharField(max_length=255)
-    highsimilarityB = models.CharField(max_length=255)
-    highsimilarityC = models.CharField(max_length=255)
+    highsimilarityA=models.FloatField(default=0.00)
+    highsimilarityB = models.FloatField(default=0.00)
+    highsimilarityC = models.FloatField(default=0.00)
     questionnum=models.CharField(max_length=255)
     homeworkid=models.CharField(max_length=255)
-
+    selecttype=models.CharField(max_length=255,default="0")
     class Meta:
         managed = True
         db_table = 'answer'

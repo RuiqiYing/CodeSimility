@@ -10,7 +10,10 @@
   "dependencies": {
     "axios": "^1.2.5",
     "core-js": "^3.8.3",
+    "echarts": "^5.4.1",
+    "echarts-gl": "^2.0.9",
     "element-plus": "^2.2.28",
+    "v-code-diff": "^1.1.0",
     "vue": "^3.2.13",
     "vue-router": "^4.0.13"
   },
