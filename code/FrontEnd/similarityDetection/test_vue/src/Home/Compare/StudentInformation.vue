@@ -4,11 +4,11 @@
     <div class="infor_div">
       <div class="small_div" style="height: 220px">
         <h2>详细信息</h2>
-        <div style="width: 150px">
+        <div style="width: 200px">
           <div>
-            <div class="text_div">昵称: {{ name1 }}</div>
-            <div class="text_div">注册时间: {{ name2 }}</div>
-            <div class="text_div">个性签名:{{ similarity }}</div>
+            <div class="text_div">昵称: {{ name }}</div>
+            <div class="text_div">注册时间: {{ ctime }}</div>
+            <div class="text_div">个性签名:{{ infor }}</div>
             <div style="height: 20px"></div>
           </div>
         </div>
@@ -43,45 +43,22 @@
             />
           </el-select>
           <div style="height: 20px"></div>
-          <el-button
-            class="button"
-            type="primary"
-            @click="checkquestion()"
-            plain
+          <el-button class="button" type="primary" @click="check()" plain
             >查看相似度</el-button
           >
         </div>
       </div>
     </div>
     <div class="diff_div">
-      <code-diff
-        :old-string="answer1"
-        :new-string="answer2"
-        file-name="test.txt"
-        output-format="side-by-side"
-      />
+      <div id="myChart123" :style="{ width: '1000px', height: '350px' }"></div>
     </div>
   </div>
-  <el-dialog
-    v-model="dialogVisible"
-    title="题目"
-    width="30%"
-    :before-close="handleClose"
-  >
-    <span>{{ question }}</span>
-    <template #footer>
-      <span class="dialog-footer">
-        <el-button type="primary" @click="dialogVisible = false">
-          确定
-        </el-button>
-      </span>
-    </template>
-  </el-dialog>
 </template>
   
   <script>
 import axios from "axios";
 import api from "@/api";
+import * as echarts from "echarts";
 export default {
   data() {
     return {
@@ -90,27 +67,18 @@ export default {
       value1: "",
       value2: "",
       question: "",
-      name1: "",
-      name2: "",
-      similarity: "",
+      name: "",
+      ctime: "",
+      chartData: [],
+      infor: "",
       algorithm: "",
       answer1: "",
       answer2: "",
       dialogVisible: false,
-      options1: [
-        {
-          value: "1",
-          label: "算法一：均衡",
-        },
-        {
-          value: "2",
-          label: "算法二：长文本及代码有优势",
-        },
-        {
-          value: "3",
-          label: "算法三：仅给出是否相似，适合概览",
-        },
-      ],
+      options1: [],
+      xAxis: {
+        data: [],
+      },
       options2: [
         {
           value: "1",
@@ -130,13 +98,14 @@ export default {
   created() {
     this.get();
   },
+  mounted() {},
   methods: {
     get() {
       axios
         .post(
           api.url + "/information/getusername/",
           {
-            userid: localStorage.getItem("input2"),
+            userid: localStorage.getItem("input1"),
           },
           {
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -146,11 +115,12 @@ export default {
         .then((success) => {
           this.name1 = success.data;
         });
+
       axios
         .post(
-          api.url + "/information/getusername/",
+          api.url + "/information/gethomeworkname/",
           {
-            userid: localStorage.getItem("input3"),
+            userid: localStorage.getItem("input1"),
           },
           {
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -158,18 +128,68 @@ export default {
           }
         )
         .then((success) => {
-          this.name2 = success.data;
+          var i;
+          for (i = 0; i < success.data.data.length; i++) {
+            this.options1.push({
+              value: success.data.homeworkid[i],
+              label: success.data.data[i],
+            });
+          }
         });
+
+      axios
+        .post(
+          api.url + "/information/getallinfor/",
+          {
+            userid: localStorage.getItem("input1"),
+          },
+          {
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            emulateJSON: true,
+          }
+        )
+        .then((success) => {
+          this.name = success.data.username;
+          this.ctime = success.data.ctime.slice(0, 9);
+          this.infor = success.data.information;
+        });
+    },
+    drawChart() {
+      let myChart1 = echarts.init(document.getElementById("myChart123"));
+      myChart1.setOption({
+        xAxis: this.xAxis,
+        yAxis: {},
+        tooltip: {},
+        series: [
+          {
+            name: "相似度",
+            type: "line",
+            data: this.chartData,
+          },
+        ],
+      });
+      // myChart1.on("click", function (params) {
+      //   //用于做每个点的监听，只用点击点才能够获取想要的监听效果；
+      //   let data = {
+      //     x: params.name,
+      //     y: params.data,
+      //   };
+      //   console.log(data);
+      //   alert(JSON.stringify(data));
+      // });
+
+      window.addEventListener("resize", () => {
+        myChart1.resize();
+      });
     },
     check() {
       axios
         .post(
-          api.url + "/getsimilarity/compare/",
+          api.url + "/getsimilarity/getstuhomeworksim/",
           {
-            userid1: localStorage.getItem("input2"),
-            userid2: localStorage.getItem("input3"),
-            questionid: this.questionid,
-            algorithm: this.value2,
+            userid: localStorage.getItem("input1"),
+            homeworkid: this.value1,
+            calculation: this.value2,
           },
           {
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -177,15 +197,11 @@ export default {
           }
         )
         .then((success) => {
-          // console.log(success.data)
-          this.answer1 = success.data.answer1;
-          this.answer2 = success.data.answer2;
-          this.similarity = success.data.similarity;
-          this.question = success.data.question;
+          console.log(success.data);
+          this.xAxis.data = success.data.id;
+          this.chartData = success.data.similarity;
+          this.drawChart();
         });
-    },
-    checkquestion() {
-      this.dialogVisible = true;
     },
   },
 };

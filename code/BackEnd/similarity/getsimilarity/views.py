@@ -9,9 +9,7 @@ def gethomework(request):
     homeworkid=request.POST.get("homeworkid")
     questionid=request.POST.get("questionid")
     calculation=request.POST.get("calculation")
-    # print(homeworkid)
-    # print(questionid)
-    # print(calculation)
+
     qs = Answer.objects.values()
     qs = qs.filter(homeworkid=homeworkid,questionid=questionid)
     data=[]
@@ -57,3 +55,122 @@ def compare(request):
     elif(algorithm=="3"):
         similarity = data[2]
     return JsonResponse({"ret": 0, "answer1": answer1, "answer2": answer2,"question":question,"similarity":similarity})
+
+
+
+
+def getsimdetail(request):
+
+    #查看一次作业各算法各区间的人数及姓名
+    homeworkid=request.POST.get("homeworkid")
+    questionid=request.POST.get("questionid")
+    calculation=request.POST.get("calculation")
+    range=request.POST.get("range")
+    qs = Answer.objects.values()
+    qs = qs.filter(homeworkid=homeworkid,questionid=questionid)
+    data=[]
+    stuinfor=[]
+    if (calculation=="1"):
+        for i in qs:
+            if (range == "1"):
+                if(i["highsimilarityA"]>=0 and i["highsimilarityA"]<=0.2):
+                    data.append(i["highsimilarityA"])
+                    stuinfor.append(i["userid"])
+            elif (range == "2"):
+                if(i["highsimilarityA"]>0.2 and i["highsimilarityA"]<=0.4):
+                    data.append(i["highsimilarityA"])
+                    stuinfor.append(i["userid"])
+            elif (range == "3"):
+                if (i["highsimilarityA"] > 0.4 and i["highsimilarityA"] <= 0.6):
+                    data.append(i["highsimilarityA"])
+                    stuinfor.append(i["userid"])
+            elif (range == "4"):
+                if (i["highsimilarityA"] > 0.6 and i["highsimilarityA"] <= 0.8):
+                    data.append(i["highsimilarityA"])
+                    stuinfor.append(i["userid"])
+            elif (range == "5"):
+                if (i["highsimilarityA"] > 0.8 and i["highsimilarityA"] <=1):
+                    data.append(i["highsimilarityA"])
+                    stuinfor.append(i["userid"])
+    elif (calculation == "2"):
+        for i in qs:
+            if (range == "1"):
+                if (i["highsimilarityB"] > 0 and i["highsimilarityB"] <= 0.2):
+                    data.append(i["highsimilarityB"])
+                    stuinfor.append(i["userid"])
+            elif (range == "2"):
+                if (i["highsimilarityB"] > 0.2 and i["highsimilarityB"] <= 0.4):
+                    data.append(i["highsimilarityB"])
+                    stuinfor.append(i["userid"])
+            elif (range == "3"):
+                if (i["highsimilarityB"] > 0.4 and i["highsimilarityB"] <= 0.6):
+                    data.append(i["highsimilarityB"])
+                    stuinfor.append(i["userid"])
+            elif (range == "4"):
+                if (i["highsimilarityB"] > 0.6 and i["highsimilarityB"] <= 0.8):
+                    data.append(i["highsimilarityB"])
+                    stuinfor.append(i["userid"])
+            elif (range == "5"):
+                if (i["highsimilarityB"] > 0.8 and i["highsimilarityB"] <= 1):
+                    data.append(i["highsimilarityB"])
+                    stuinfor.append(i["userid"])
+    else:
+        for i in qs:
+            if (range == "1"):
+                if (i["highsimilarityC"] > 0 and i["highsimilarityC"] <= 0.2):
+                    data.append(i["highsimilarityC"])
+                    stuinfor.append(i["userid"])
+            elif (range == "2"):
+                if (i["highsimilarityC"] > 0.2 and i["highsimilarityC"] <= 0.4):
+                    data.append(i["highsimilarityC"])
+                    stuinfor.append(i["userid"])
+            elif (range == "3"):
+                if (i["highsimilarityC"] > 0.4 and i["highsimilarityC"] <= 0.6):
+                    data.append(i["highsimilarityC"])
+                    stuinfor.append(i["userid"])
+            elif (range == "4"):
+                if (i["highsimilarityC"] > 0.6 and i["highsimilarityC"] <= 0.8):
+                    data.append(i["highsimilarityC"])
+                    stuinfor.append(i["userid"])
+            elif (range == "5"):
+                if (i["highsimilarityC"] > 0.8 and i["highsimilarityC"] <= 1):
+                    data.append(i["highsimilarityC"])
+                    stuinfor.append(i["userid"])
+
+    return JsonResponse({"ret": 0, "data":data ,"stuinfor":stuinfor})
+
+
+def getstuhomeworksim(request):#得到某同学某次作业相似度
+    userid=request.POST.get("userid")
+    homeworkid=request.POST.get("homeworkid")
+    calculation = request.POST.get("calculation")
+    qs = Answer.objects.values()
+    qs = qs.filter(homeworkid=homeworkid, userid=userid)
+    num = []
+    similarity = []
+    if (calculation == "1"):
+        for i in qs:
+            if(i["selecttype"]=='1'):
+                num.insert(0,"选择题")
+                similarity.insert(0,i["highsimilarityA"])
+            elif(i["selecttype"]!='1' and i["questiontype"]!='1'):
+                num.append(i["questionid"])
+                similarity.append(i["highsimilarityA"])
+    elif (calculation == "2"):
+        for i in qs:
+            if(i["selecttype"]=="1"):
+                num.insert(0,"选择题")
+                similarity.insert(0,i["highsimilarityB"])
+            elif (i["selecttype"] != '1' and i["questiontype"] != '1'):
+                num.append(i["questionid"])
+                similarity.append(i["highsimilarityB"])
+    elif (calculation == "3"):
+        for i in qs:
+            if(i["selecttype"]=="1"):
+                num.insert(0,"选择题")
+                similarity.insert(0,i["highsimilarityC"])
+            elif (i["selecttype"] != '1' and i["questiontype"] != '1'):
+                num.append(i["questionid"])
+                similarity.append(i["highsimilarityC"])
+    return JsonResponse({"ret": 0, "id":num ,"similarity":similarity})
+

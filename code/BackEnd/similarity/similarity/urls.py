@@ -25,4 +25,5 @@ urlpatterns = [
     path('homework/',include('homework.urls')),
     path('getsimilarity/',include('getsimilarity.urls')),
     path('information/',include('information.urls')),
+    path('stuCourse/',include('stuCourse.urls')),
 ]

@@ -66,7 +66,7 @@ export default {
 .flex_div {
   display: flex;
   height: 600px;
-  width: 1100px;
+  width: 1050px;
   margin-top: 10%;
   margin-left: 5%;
   margin-right: 2%;

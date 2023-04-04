@@ -279,10 +279,15 @@ export default {
             if (response.data == "登录成功") {
                 localStorage.setItem("userid",this.ruleForm.username);
                 localStorage.setItem("pwd",this.ruleForm.password);
-                localStorage.setItem("role",this.ruleForm.role);
-               
+                localStorage.setItem("role",this.value);
+                //this.$message({ type: "info", message:this.value });
               this.$message({ type: "info", message: response.data });
-              this.$router.push('home')
+              if(this.value==0){
+                this.$router.push('home')
+              }else if(this.value==1){
+                this.$router.push('stuhome')
+              }
+              
             } else if (response.data != "登录成功") {
               this.$message({ type: "info", message: response.data });
             }

@@ -5,4 +5,5 @@ urlpatterns = [
     path('getusername/',views.getusername),
     path('getallinfor/',views.getallinfor),
     path('changeinformation/', views.changeinformation),
+    path('gethomeworkname/', views.gethomeworkname),
 ]

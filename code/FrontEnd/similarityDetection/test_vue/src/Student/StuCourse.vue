@@ -2,14 +2,14 @@
   <div>
     <div>
       <div style="float: left; text-align: right; width: 50%; margin-left: 2%">
-        <h2>我的班级</h2>
+        <h2>我的课程</h2>
       </div>
       <div style="float: right; text-align: right; width: 38%">
         <el-button
           class="new_btn"
           type="primary"
           @click="dialogFormVisible = true"
-          >新增</el-button
+          >加入</el-button
         >
       </div>
     </div>
@@ -33,26 +33,20 @@
           <el-button type="text" size="small" @click="check(scope.row)"
             >查看</el-button
           >
-          <el-button type="text" size="small" @click="deleteCourse(scope.row)"
-            >删除</el-button
-          ></template
-        >
+        </template>
       </el-table-column>
     </el-table>
   </div>
-  <el-dialog v-model="dialogFormVisible" title="新建课程">
+  <el-dialog v-model="dialogFormVisible" title="加入课程">
     <el-form :model="form">
-      <el-form-item label="课程名称" :label-width="formLabelWidth">
-        <el-input v-model="form.coursename" autocomplete="off" />
-      </el-form-item>
-      <el-form-item label="班级名称" :label-width="formLabelWidth">
-        <el-input v-model="form.classname" autocomplete="off" />
+      <el-form-item label="课程ID" :label-width="formLabelWidth">
+        <el-input v-model="form.courseid" autocomplete="off" />
       </el-form-item>
     </el-form>
     <template #footer>
       <span class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取消</el-button>
-        <el-button type="primary" @click="creat()"> 提交 </el-button>
+        <el-button type="primary" @click="joinCourse()"> 提交 </el-button>
       </span>
     </template>
   </el-dialog>
@@ -68,15 +62,13 @@ export default {
       formLabelWidth: "140px",
       form: {
         userid: "",
-        classname: "",
-        coursename: "",
+        courseid: "",
       },
 
       tableHeader: {
         courseid: "课程号",
         coursename: "课程名称",
         classname: "班级名称",
-        ctime: "添加时间",
       },
       tableData: [],
     };
@@ -88,7 +80,7 @@ export default {
     get() {
       axios
         .post(
-          api.url + "/course/list/",
+          api.url + "/stuCourse/viewStuCourse/",
           {
             userid: localStorage.getItem("userid"),
           },
@@ -99,13 +91,7 @@ export default {
         )
         .then((success) => {
           var jsonObj = JSON.parse(JSON.stringify(success.data.data));
-          for (var i = 0; i < jsonObj.length; i++) {
-            // alert( jsonObj[i].coursename);
-            var str = jsonObj[i].ctime;
-            var str1 = str.slice(0, 9);
-            var str2 = str.slice(11, 19);
-            jsonObj[i].ctime = str1 + " " + str2;
-          }
+          console.log(jsonObj);
           this.tableData = jsonObj;
         });
     },
@@ -113,61 +99,58 @@ export default {
       localStorage.setItem("classname", row.classname);
       localStorage.setItem("coursename", row.coursename);
       localStorage.setItem("courseid", row.courseid);
-      this.$router.push("homework");
+      this.$router.push("stuhomework");
     },
-    deleteCourse(row) {
-      this.$confirm("此操作将永久删除, 是否继续?", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning",
-      })
-        .then(() => {
-          axios
-            .post(
-              api.url + "/course/delete/",
-              {
-                courseid: row.courseid,
-              },
-              {
-                headers: {
-                  "Content-Type": "application/x-www-form-urlencoded",
-                },
-                emulateJSON: true,
-              }
-            )
-            .then((res) => {
-              if (res.data === "删除成功") {
-                location.reload();
-                this.$message.success("删除成功！");
-              } else {
-                try {
-                  this.$message.error(res.data);
-                } catch {
-                  this.$message.error(res.data);
-                }
-              }
-            });
-        })
-        .catch(() => {
-          this.$message({
-            type: "info",
-            message: "已取消删除",
-          });
-        });
-    },
-    creat() {
+    // deleteCourse(row) {
+    //   this.$confirm("此操作将永久删除, 是否继续?", "提示", {
+    //     confirmButtonText: "确定",
+    //     cancelButtonText: "取消",
+    //     type: "warning",
+    //   })
+    //     .then(() => {
+    //       axios
+    //         .post(
+    //           api.url + "/course/delete/",
+    //           {
+    //             courseid: row.courseid,
+    //           },
+    //           {
+    //             headers: {
+    //               "Content-Type": "application/x-www-form-urlencoded",
+    //             },
+    //             emulateJSON: true,
+    //           }
+    //         )
+    //         .then((res) => {
+    //           if (res.data === "删除成功") {
+    //             location.reload();
+    //             this.$message.success("删除成功！");
+    //           } else {
+    //             try {
+    //               this.$message.error(res.data);
+    //             } catch {
+    //               this.$message.error(res.data);
+    //             }
+    //           }
+    //         });
+    //     })
+    //     .catch(() => {
+    //       this.$message({
+    //         type: "info",
+    //         message: "已取消删除",
+    //       });
+    //     });
+    // },
+    joinCourse() {
       if (this.form.coursename === "") {
-        this.$message({ type: "info", message: "课程名必须输入！" });
-      } else if (this.form.classname === "") {
-        this.$message({ type: "info", message: "班级名必须输入！" });
+        this.$message({ type: "info", message: "课程ID必须输入！" });
       } else {
         axios
           .post(
-            this.api.url + "/course/creat/",
+            this.api.url + "/stuCourse/join/",
             {
               userid: localStorage.getItem("userid"),
-              coursename: this.form.coursename,
-              classname: this.form.classname,
+              courseid: this.form.courseid,
             },
             {
               headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -175,10 +158,17 @@ export default {
             }
           )
           .then((success) => {
-            if (success.data == "创建成功") {
-              this.$message({ type: "success", message: "创建成功" });
+            if (success.data == "加入成功") {
+              this.$message({ type: "success", message: "加入成功" });
               this.dialogFormVisible = false;
               location.reload();
+            } else if (success.data == "课程不存在，检查课程ID") {
+              this.$message({
+                type: "error",
+                message: "课程不存在，检查课程ID",
+              });
+            } else if (success.data == "你已加入该课程") {
+              this.$message({ type: "error", message: "你已加入该课程" });
             }
           });
       }

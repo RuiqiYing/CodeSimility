@@ -49,7 +49,6 @@ class QuestionBank(models.Model):
     optionD = models.TextField(max_length=10000)
 
 
-
     class Meta:
         managed = True
         db_table = 'questionbank'
@@ -72,4 +71,14 @@ class Answer (models.Model):
         managed = True
         db_table = 'answer'
 
+
+class Joincourse (models.Model):
+    jid=models.AutoField(primary_key=True)
+    userid=models.CharField(max_length=255)
+    courseid=models.CharField(max_length=255)
+    classname = models.CharField(max_length=255)
+    coursename = models.CharField(max_length=255)
+    class Meta:
+        managed = True
+        db_table = 'joincourse'
 

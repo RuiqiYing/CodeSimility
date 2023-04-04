@@ -38,12 +38,37 @@
       >
     </div>
   </div>
+  <div class="detail">
+    <el-select v-model="value3" placeholder="选择百分比" size="large">
+      <el-option
+        v-for="item in options3"
+        :key="item.value"
+        :label="item.label"
+        :value="item.value"
+      />
+    </el-select>
+    <el-button type="primary" style="height: 40px" @click="getinfor()"
+      >查看同学</el-button
+    >
+  </div>
 
   <div class="flex_div">
     <div class="in_div" id="chartBar" style="width: 450px; height: 450px"></div>
     <div style="width: 30px"></div>
     <div id="chartPie" class="in_div" style="width: 450px; height: 450px"></div>
   </div>
+  <el-dialog v-model="dialogTableVisible" title="详细信息" draggable>
+    <el-table :data="gridData">
+      <el-table-column
+        :prop="index"
+        :label="item"
+        v-for="(item, index) in tableHeader"
+        :key="index"
+      >
+      </el-table-column>
+    
+    </el-table>
+  </el-dialog>
 </template>
   
   <script>
@@ -54,12 +79,19 @@ import * as eacharts from "echarts";
 export default {
   data() {
     return {
-     
+      dialogTableVisible: false,
+      tableHeader: {
+        userid: "学号",
+        similarity: "相似度",
+      },
+      formLabelWidth: "140px",
       yData: [0, 0, 0, 0, 0], //数据
       update: true,
       value1: "",
       options: [1, 2, 3],
       value2: "",
+      value3: "",
+      gridData: [],
       options2: [
         {
           value: "1",
@@ -72,6 +104,28 @@ export default {
         {
           value: "3",
           label: "算法三：仅给出是否相似，适合概览",
+        },
+      ],
+      options3: [
+        {
+          value: "1",
+          label: "0%-20%",
+        },
+        {
+          value: "2",
+          label: "20%-40%",
+        },
+        {
+          value: "3",
+          label: "40%-60%",
+        },
+        {
+          value: "4",
+          label: "60%-80%",
+        },
+        {
+          value: "5",
+          label: "80%-100%",
         },
       ],
 
@@ -101,6 +155,30 @@ export default {
   },
 
   methods: {
+    getinfor() {
+      this.dialogTableVisible = true;
+      axios
+        .post(
+          api.url + "/getsimilarity/getsimdetail/",
+          {
+            homeworkid: localStorage.getItem("homeworkid"),
+            questionid: this.value1,
+            calculation: this.value2,
+            range:this.value3,
+          },
+          {
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            emulateJSON: true,
+          }
+        )
+        .then((success) => {
+          this.gridData=[]
+          for (var i =0;i<success.data.data.length;i++){
+            var temp={similarity:success.data.data[i],userid:success.data.stuinfor[i]}
+            this.gridData.push(temp)
+          }
+        });
+    },
     getdata() {
       axios
         .post(
@@ -125,29 +203,29 @@ export default {
             { value: 0, name: "60%-80%" },
             { value: 0, name: "80%-100%" },
           ];
-          var res=[0,0,0,0,0]
-          var list=[]
-          list=success.data.data
-          for (var i=0; i<list.length; i++){
-            if(list[i]>=0&&list[i]<=0.2){
+          var res = [0, 0, 0, 0, 0];
+          var list = [];
+          list = success.data.data;
+          for (var i = 0; i < list.length; i++) {
+            if (list[i] < 0.2) {
               res[0]++;
               data[0].value++;
-            }else if(list[i]>=0.2&&list[i]<=0.4){
+            } else if (list[i] >= 0.2 && list[i] < 0.4) {
               res[1]++;
               data[1].value++;
-            }else if(list[i]>=0.4&&list[i]<=0.6){
+            } else if (list[i] >= 0.4 && list[i] < 0.6) {
               res[2]++;
               data[2].value++;
-            }else if(list[i]>=0.6&&list[i]<=0.8){
+            } else if (list[i] >= 0.6 && list[i] < 0.8) {
               res[3]++;
               data[3].value++;
-            }else {
+            } else {
               res[4]++;
               data[4].value++;
             }
           }
-          
-          console.log(res)
+
+          console.log(res);
           this.yData = res;
           this.drawPieChart(data);
           this.initEcharts();
@@ -290,5 +368,14 @@ export default {
   margin-top: 2%;
   margin-left: 3%;
   width: 20%;
+}
+
+.detail {
+  float: left;
+  margin-top: 2%;
+  margin-left: 5%;
+  width: 30%;
+  height: 40px;
+  display: flex;
 }
 </style>

@@ -3,6 +3,7 @@ from django.shortcuts import render
 
 # Create your views here.
 from common import models
+from common.models import Answer
 
 
 def getusername(request):
@@ -28,7 +29,22 @@ def changeinformation(request):
     return HttpResponse("修改成功")
 
 
+
 def gethomeworkname(request):
     userid = request.POST.get("userid")
-
-    return HttpResponse("chhg")
+    qs = Answer.objects.values()
+    qs = qs.filter(userid=userid)
+    data=[]
+    homeworkid=[]
+    for i in qs:
+        flag=0
+        id=i["homeworkid"]
+        for i in homeworkid:
+            if(i==id):
+                flag=1
+        if(flag==0):
+            homeworkid.append(id)
+            print(id)
+            homework= models.Homework.objects.get(homeworkid=id)
+            data.append(homework.homeworkname)
+    return JsonResponse({"ret":0,"data":data,"homeworkid":homeworkid})

@@ -13,7 +13,12 @@ import CompareDetail from "@/Home/Compare/ComparePage.vue"
 import Compare from "@/Home/SimilarityCompare.vue"
 import StudentInfor from "@/Home/Compare/StudentInformation.vue"
 import Infor from "@/Home/InformationPage.vue"
-
+import StuHome from "@/Student/StuHome.vue"
+import Movie from "@/components/MyMovie.vue"
+import StuInformation from "@/Student/StuInformathon.vue"
+import StuCourse from "@/Student/StuCourse.vue"
+import StuHomework from "@/Student/StuHomework.vue"
+import HomeworkDetail from"@/Student/HomeworkDetail.vue"
 // 创建路由实例对象
 const router = createRouter({
     // 指定路由工作模式
@@ -24,15 +29,23 @@ const router = createRouter({
         { path: '/detail', component: Detail },
         { path: '/infor', component: StudentInfor },
         { path: '/comparepage', component: CompareDetail },
-       
+        { path: '/movie', component: Movie },
+        { path: '/homeworkdetail', component: HomeworkDetail },
         {
             path: '/home', component: Home, redirect: { name: "course" }, children: [
-                { path: '/about',name:'about', component: About },
-                { path: '/course', name:'course',component: Course },
-                { path: '/homework', name:'homework',component: Homework },
-                { path: '/compare', name:'compare',component: Compare },
+                { path: '/about', name: 'about', component: About },
+                { path: '/course', name: 'course', component: Course },
+                { path: '/homework', name: 'homework', component: Homework },
+                { path: '/compare', name: 'compare', component: Compare },
                 { path: '/information', component: Infor },
 
+            ]
+        },
+        {
+            path: '/stuhome', component: StuHome, redirect: { name: "stucourse" }, children: [
+                { path: '/stucourse', name: 'stucourse', component: StuCourse },
+                { path: '/stuinformation', component: StuInformation },
+                { path: '/stuhomework', component: StuHomework }
             ]
         },
     ]
