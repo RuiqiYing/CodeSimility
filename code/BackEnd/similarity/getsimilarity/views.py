@@ -2,7 +2,7 @@ from django.http import HttpResponse, JsonResponse
 
 from algorithm.all import algorithmAll
 from common import models
-from common.models import Answer, QuestionBank
+from common.models import Answer, QuestionBank,HighestSimilarityA, HighestSimilarityB, HighestSimilarityC
 
 
 def gethomework(request):
@@ -73,67 +73,67 @@ def getsimdetail(request):
     if (calculation=="1"):
         for i in qs:
             if (range == "1"):
-                if(i["highsimilarityA"]>=0 and i["highsimilarityA"]<=0.2):
+                if(i["highsimilarityA"]>=0 and i["highsimilarityA"]<0.2):
                     data.append(i["highsimilarityA"])
                     stuinfor.append(i["userid"])
             elif (range == "2"):
-                if(i["highsimilarityA"]>0.2 and i["highsimilarityA"]<=0.4):
+                if(i["highsimilarityA"]>=0.2 and i["highsimilarityA"]<0.4):
                     data.append(i["highsimilarityA"])
                     stuinfor.append(i["userid"])
             elif (range == "3"):
-                if (i["highsimilarityA"] > 0.4 and i["highsimilarityA"] <= 0.6):
+                if (i["highsimilarityA"] >= 0.4 and i["highsimilarityA"] < 0.6):
                     data.append(i["highsimilarityA"])
                     stuinfor.append(i["userid"])
             elif (range == "4"):
-                if (i["highsimilarityA"] > 0.6 and i["highsimilarityA"] <= 0.8):
+                if (i["highsimilarityA"] >= 0.6 and i["highsimilarityA"] < 0.8):
                     data.append(i["highsimilarityA"])
                     stuinfor.append(i["userid"])
             elif (range == "5"):
-                if (i["highsimilarityA"] > 0.8 and i["highsimilarityA"] <=1):
+                if (i["highsimilarityA"] >= 0.8 and i["highsimilarityA"] <=1):
                     data.append(i["highsimilarityA"])
                     stuinfor.append(i["userid"])
     elif (calculation == "2"):
         for i in qs:
             if (range == "1"):
-                if (i["highsimilarityB"] > 0 and i["highsimilarityB"] <= 0.2):
+                if (i["highsimilarityB"] > 0 and i["highsimilarityB"] < 0.2):
                     data.append(i["highsimilarityB"])
                     stuinfor.append(i["userid"])
             elif (range == "2"):
-                if (i["highsimilarityB"] > 0.2 and i["highsimilarityB"] <= 0.4):
+                if (i["highsimilarityB"] >= 0.2 and i["highsimilarityB"] < 0.4):
                     data.append(i["highsimilarityB"])
                     stuinfor.append(i["userid"])
             elif (range == "3"):
-                if (i["highsimilarityB"] > 0.4 and i["highsimilarityB"] <= 0.6):
+                if (i["highsimilarityB"] >= 0.4 and i["highsimilarityB"] < 0.6):
                     data.append(i["highsimilarityB"])
                     stuinfor.append(i["userid"])
             elif (range == "4"):
-                if (i["highsimilarityB"] > 0.6 and i["highsimilarityB"] <= 0.8):
+                if (i["highsimilarityB"] >= 0.6 and i["highsimilarityB"] < 0.8):
                     data.append(i["highsimilarityB"])
                     stuinfor.append(i["userid"])
             elif (range == "5"):
-                if (i["highsimilarityB"] > 0.8 and i["highsimilarityB"] <= 1):
+                if (i["highsimilarityB"] >= 0.8 and i["highsimilarityB"] <= 1):
                     data.append(i["highsimilarityB"])
                     stuinfor.append(i["userid"])
     else:
         for i in qs:
             if (range == "1"):
-                if (i["highsimilarityC"] > 0 and i["highsimilarityC"] <= 0.2):
+                if (i["highsimilarityC"] > 0 and i["highsimilarityC"] < 0.2):
                     data.append(i["highsimilarityC"])
                     stuinfor.append(i["userid"])
             elif (range == "2"):
-                if (i["highsimilarityC"] > 0.2 and i["highsimilarityC"] <= 0.4):
+                if (i["highsimilarityC"] >= 0.2 and i["highsimilarityC"] < 0.4):
                     data.append(i["highsimilarityC"])
                     stuinfor.append(i["userid"])
             elif (range == "3"):
-                if (i["highsimilarityC"] > 0.4 and i["highsimilarityC"] <= 0.6):
+                if (i["highsimilarityC"] >= 0.4 and i["highsimilarityC"] < 0.6):
                     data.append(i["highsimilarityC"])
                     stuinfor.append(i["userid"])
             elif (range == "4"):
-                if (i["highsimilarityC"] > 0.6 and i["highsimilarityC"] <= 0.8):
+                if (i["highsimilarityC"] >= 0.6 and i["highsimilarityC"] < 0.8):
                     data.append(i["highsimilarityC"])
                     stuinfor.append(i["userid"])
             elif (range == "5"):
-                if (i["highsimilarityC"] > 0.8 and i["highsimilarityC"] <= 1):
+                if (i["highsimilarityC"] >= 0.8 and i["highsimilarityC"] <= 1):
                     data.append(i["highsimilarityC"])
                     stuinfor.append(i["userid"])
 
@@ -147,30 +147,39 @@ def getstuhomeworksim(request):#得到某同学某次作业相似度
     qs = Answer.objects.values()
     qs = qs.filter(homeworkid=homeworkid, userid=userid)
     num = []
+    useriddata=[]
     similarity = []
     if (calculation == "1"):
         for i in qs:
             if(i["selecttype"]=='1'):
                 num.insert(0,"选择题")
                 similarity.insert(0,i["highsimilarityA"])
+                useriddata.insert(0,models.HighestSimilarityA.objects.get(ansid=i["ansid"]).useridb)
             elif(i["selecttype"]!='1' and i["questiontype"]!='1'):
                 num.append(i["questionid"])
                 similarity.append(i["highsimilarityA"])
+                useriddata.append( models.HighestSimilarityA.objects.get(ansid=i["ansid"]).useridb)
     elif (calculation == "2"):
         for i in qs:
             if(i["selecttype"]=="1"):
                 num.insert(0,"选择题")
                 similarity.insert(0,i["highsimilarityB"])
+                useriddata.insert(0, models.HighestSimilarityB.objects.get(ansid=i["ansid"]).useridb)
             elif (i["selecttype"] != '1' and i["questiontype"] != '1'):
                 num.append(i["questionid"])
                 similarity.append(i["highsimilarityB"])
+                useriddata.append(models.HighestSimilarityB.objects.get(ansid=i["ansid"]).useridb)
+
     elif (calculation == "3"):
         for i in qs:
             if(i["selecttype"]=="1"):
                 num.insert(0,"选择题")
                 similarity.insert(0,i["highsimilarityC"])
+                useriddata.insert(0, models.HighestSimilarityC.objects.get(ansid=i["ansid"]).useridb)
+
             elif (i["selecttype"] != '1' and i["questiontype"] != '1'):
                 num.append(i["questionid"])
                 similarity.append(i["highsimilarityC"])
-    return JsonResponse({"ret": 0, "id":num ,"similarity":similarity})
+                useriddata.append( models.HighestSimilarityC.objects.get(ansid=i["ansid"]).useridb)
+    return JsonResponse({"ret": 0, "id":num ,"similarity":similarity,"useriddata":useriddata})
 

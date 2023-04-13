@@ -82,3 +82,47 @@ class Joincourse (models.Model):
         managed = True
         db_table = 'joincourse'
 
+
+class HighestSimilarityA (models.Model):
+    said=models.AutoField(primary_key=True)
+    userida = models.CharField(max_length=255)
+    useridb = models.CharField(max_length=255)
+    ansid = models.CharField(max_length=255)
+    similarity=models.FloatField(default=0.00)
+    homeworkid= models.CharField(max_length=255,default="1")
+    class Meta:
+        managed = True
+        db_table = 'highestsimilaritya'
+
+
+class HighestSimilarityB(models.Model):
+    sbid = models.AutoField(primary_key=True)
+    userida = models.CharField(max_length=255)
+    useridb = models.CharField(max_length=255)
+    ansid = models.CharField(max_length=255)
+    similarity = models.FloatField(default=0.00)
+    homeworkid= models.CharField(max_length=255,default="1")
+    class Meta:
+        managed = True
+        db_table = 'highestsimilarityb'
+
+class HighestSimilarityC(models.Model):
+    scid = models.AutoField(primary_key=True)
+    userida = models.CharField(max_length=255)
+    useridb = models.CharField(max_length=255)
+    ansid = models.CharField(max_length=255)
+    similarity = models.FloatField(default=0.00)
+    homeworkid= models.CharField(max_length=255,default="1")
+    class Meta:
+        managed = True
+        db_table = 'highestsimilarityc'
+
+class SubmitHomework(models.Model):
+    subid = models.AutoField(primary_key=True)
+    userid = models.CharField(max_length=255)
+    homeworkid = models.CharField(max_length=255)
+    ctime=models.DateTimeField(auto_now_add=True)
+    questionnum=models.CharField(max_length=255)
+    class Meta:
+        managed = True
+        db_table = 'submithomework'

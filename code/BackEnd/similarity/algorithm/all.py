@@ -15,16 +15,16 @@ def algorithmAll(content_x,content_y):
         similarityA = CosineSimilarity(content_x, content_y)
         similarityA = similarityA.main()
         print(similarityA)
-        print('相似度: %.2f%%' % (similarityA*100))
+        # print('相似度: %.2f%%' % (similarityA*100))
 
         similarityB=JaccardSimilarity(content_x, content_y)
         similarityB = similarityB.main()
-        print('相似度: %.2f%%' % (similarityB*100))
+        # print('相似度: %.2f%%' % (similarityB*100))
 
         similarityC = SimHashSimilarity(content_x, content_y)
         similarityC = similarityC.main()
         threshold = 3
-        print(f'海明距离：{similarityC} 判定距离：{threshold} 是否相似：{similarityC <= threshold} 相似度：{similarityC/threshold}')
+        # print(f'海明距离：{similarityC} 判定距离：{threshold} 是否相似：{similarityC <= threshold} 相似度：{similarityC/threshold}')
         temp=0
         if(similarityC <= threshold):
             temp=1

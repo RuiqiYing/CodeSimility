@@ -6,4 +6,5 @@ urlpatterns = [
     path('getallinfor/',views.getallinfor),
     path('changeinformation/', views.changeinformation),
     path('gethomeworkname/', views.gethomeworkname),
+    path('getstusimilarity/', views.getstusimilarity),
 ]

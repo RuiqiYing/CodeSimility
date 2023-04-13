@@ -9,4 +9,8 @@ urlpatterns = [
     path('gethomework/', views.gethomework),
     path('submit/',views.submit),
     path('submitcode/',views.submitcode),
+    path('testcode/',views.testcode),
+    path('submittest/',views.submittest),
+    path('checksubmit/',views.checksubmit),
+    path('getsubmitlist/',views.getsubmitlist)
 ]

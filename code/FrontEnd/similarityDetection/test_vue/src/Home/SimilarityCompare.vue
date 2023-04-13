@@ -59,8 +59,8 @@ export default {
   <style scoped>
 .in_div {
   box-shadow: 0px -3px 0px 0px #e5e5e5, /*上边阴影 */ -1px 0px 0px 0px #e5e5e5,
-    /*左边阴影  */ 1px 0px 0px 0px #e5e5e5,
-    /*右边阴影 */ 0px 3px 0px 0px #e5e5e5; /*下边阴影 */
+    /*左边阴影  */ 3px 0px 0px 0px #e5e5e5,
+    /*右边阴影 */ 0px 1px 0px 0px #e5e5e5; /*下边阴影 */
 }
 
 .flex_div {

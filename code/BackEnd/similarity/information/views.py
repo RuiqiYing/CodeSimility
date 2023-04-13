@@ -3,7 +3,7 @@ from django.shortcuts import render
 
 # Create your views here.
 from common import models
-from common.models import Answer
+from common.models import Answer, HighestSimilarityA, HighestSimilarityB, HighestSimilarityC
 
 
 def getusername(request):
@@ -48,3 +48,42 @@ def gethomeworkname(request):
             homework= models.Homework.objects.get(homeworkid=id)
             data.append(homework.homeworkname)
     return JsonResponse({"ret":0,"data":data,"homeworkid":homeworkid})
+
+def getstusimilarity(request):
+    homeworkid=request.POST.get("homeworkid")
+    userid=request.POST.get("userid")
+    calculation = request.POST.get("calculation")
+    ans=Answer.objects.values()
+    data=[]
+    similaritydata=[]
+    if(calculation=="1"):
+        qs = HighestSimilarityA.objects.values()
+        qs = qs.filter(userida=userid, homeworkid=homeworkid)
+        for i in qs:
+            ansid=i["ansid"]
+            temp=ans.filter(ansid=ansid)
+            if(temp[0]["selecttype"]=="1"):
+                data.insert(0,"选择题")
+            else:
+                data.append(temp[0]["questionid"])
+    if (calculation == "2"):
+        qs = HighestSimilarityB.objects.values()
+        qs = qs.filter(userida=userid, homeworkid=homeworkid)
+        for i in qs:
+            ansid = i["ansid"]
+            temp = ans.filter(ansid=ansid)
+            if (temp[0]["selecttype"] == "1"):
+                data.insert(0, "选择题")
+            else:
+                data.append(temp[0]["questionid"])
+    if (calculation == "3"):
+        qs = HighestSimilarityC.objects.values()
+        qs = qs.filter(userida=userid, homeworkid=homeworkid)
+        for i in qs:
+            ansid = i["ansid"]
+            temp = ans.filter(ansid=ansid)
+            if (temp[0]["selecttype"] == "1"):
+                data.insert(0, "选择题")
+            else:
+                data.append(temp[0]["questionid"])
+    return JsonResponse({"data":data})

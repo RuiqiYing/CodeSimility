@@ -11,7 +11,7 @@ from django.shortcuts import render
 from algorithm.all import algorithmAll, algorithmSelect
 from algorithm.cosine_similarity import CosineSimilarity
 from common import models
-from common.models import Homework
+from common.models import Homework, HighestSimilarityA, HighestSimilarityB, HighestSimilarityC, SubmitHomework
 from common.models import QuestionBank,Answer
 
 
@@ -49,16 +49,33 @@ def gethomework(request):
     return JsonResponse({'ret': 0, 'length':data.__len__(), 'data': data}, json_dumps_params={'ensure_ascii': False}, )
 
 
-def submit(request): #包含type为1 2 3的一次提交
+def submittest(request):
     data = json.loads(request.body.decode('utf-8'))
-    print(data)
+    # print(data)
+    userid=data.get('userid')
+    questionnum=data.get('questionnum')
+    homeworkid=data.get('homeworkid')
+    print(userid)
+    print(questionnum)
+    print(homeworkid)
+    return HttpResponse("fuwyseftewgf")
+
+def submit(request): #包含type为1 2 3的一次提交
+
+    data = json.loads(request.body.decode('utf-8'))
+    # print(data)
     userid=data.get('userid')
     questionnum=data.get('questionnum')
     homeworkid=data.get('homeworkid')
     dic = data.get('data')
     dataselect=""
+    #提交作业表
+    SubmitHomework.objects.create(userid=userid,homeworkid=homeworkid,questionnum=questionnum)
+
+    #提交作业表
     for i in dic:  #提交中的一题
         high=[0,0,0]
+        useriddic=["","",""]
         questionid=i.get('questionid')
         question=i.get('question')
         answer=i.get("answer")
@@ -70,6 +87,12 @@ def submit(request): #包含type为1 2 3的一次提交
             if questiontype == "1":
                 dataselect += answer
             Answer.objects.create(userid=userid,questionid=questionid,question=question,answer=answer,questiontype=questiontype,highsimilarityA=0.00,highsimilarityB=0.00,highsimilarityC=0.00,questionnum=questionnum,homeworkid=homeworkid)
+            if questiontype != "1":
+                temp = models.Answer.objects.get(userid=userid,questionid=questionid,question=question,answer=answer,homeworkid=homeworkid)
+                ansida=temp.ansid
+                HighestSimilarityA.objects.create(userida=userid, useridb="null",ansid=ansida,similarity=0.00 , homeworkid=homeworkid)
+                HighestSimilarityB.objects.create(userida=userid, useridb="null", ansid=ansida, similarity=0.00, homeworkid=homeworkid)
+                HighestSimilarityC.objects.create(userida=userid, useridb="null", ansid=ansida, similarity=0.00, homeworkid=homeworkid)
         else:#不是第一个
             if questiontype=="1":#如果是选择题，存进去
                 Answer.objects.create(userid=userid, questionid=questionid, question=question, answer=answer,
@@ -78,27 +101,47 @@ def submit(request): #包含type为1 2 3的一次提交
 
                 dataselect+=answer
             else:
-                for i in qs:
+                for i in qs:#遍历本次作业中所有题id相同
                     ansid=i.get("ansid")
                     temp = models.Answer.objects.get(ansid=ansid)
+                    tempa = models.HighestSimilarityA.objects.get(ansid=ansid)
+                    tempb = models.HighestSimilarityB.objects.get(ansid=ansid)
+                    tempc = models.HighestSimilarityC.objects.get(ansid=ansid)
                     data1 = algorithmAll(i["answer"], answer)
                     if (i.get("highsimilarityA") < data1[0]):
                         temp.highsimilarityA = data1[0]
+                        tempa.similarity = data1[0]
+                        tempa.useridb=userid
                     if (i.get("highsimilarityB") < data1[1]):
                         temp.highsimilarityB = data1[1]
+                        tempb.similarity = data1[1]
+                        tempb.useridb = userid
                     if (i.get("highsimilarityC") < data1[2]):
                         temp.highsimilarityC = data1[2]
+                        tempc.similarity = data1[2]
+                        tempc.useridb = userid
                     temp.save()
+                    tempa.save()
+                    tempb.save()
+                    tempc.save()
                     if high[0] < data1[0]:
                         high[0] = data1[0]
+                        useriddic[0]=i.get("userid")
                     if high[1] < data1[1]:
                         high[1] = data1[1]
+                        useriddic[1] = i.get("userid")
                     if high[2] < data1[2]:
                         high[2] = data1[2]
+                        useriddic[2] = i.get("userid")
                 Answer.objects.create(userid=userid, questionid=questionid, question=question, answer=answer,
                                           questiontype=questiontype, highsimilarityA=high[0], highsimilarityB=high[1],
                                           highsimilarityC=high[2], questionnum=questionnum, homeworkid=homeworkid)
-
+                temp = models.Answer.objects.get(userid=userid, questionid=questionid, question=question, answer=answer,
+                                                 homeworkid=homeworkid)
+                ansida = temp.ansid
+                HighestSimilarityA.objects.create(userida=userid, useridb=useriddic[0], ansid=ansida, similarity=high[0], homeworkid=homeworkid)
+                HighestSimilarityB.objects.create(userida=userid, useridb=useriddic[1], ansid=ansida, similarity=high[1], homeworkid=homeworkid)
+                HighestSimilarityC.objects.create(userida=userid, useridb=useriddic[2], ansid=ansida, similarity=high[2], homeworkid=homeworkid)
                 # print(data1)
                 # print()
     #处理选择题
@@ -109,34 +152,55 @@ def submit(request): #包含type为1 2 3的一次提交
         Answer.objects.create(userid=userid, questionid="0", question="作业id"+homeworkid+"的选择题", answer=dataselect,
                               questiontype="1", highsimilarityA=0.00, highsimilarityB=0.00,
                               highsimilarityC=0.00, questionnum=questionnum, homeworkid=homeworkid,selecttype="1")
+        temp = models.Answer.objects.get(userid=userid, homeworkid=homeworkid,selecttype="1")
+        ansida = temp.ansid
+        HighestSimilarityA.objects.create(userida=userid, useridb="null", ansid=ansida, similarity=0.00, homeworkid=homeworkid)
+        HighestSimilarityB.objects.create(userida=userid, useridb="null", ansid=ansida, similarity=0.00, homeworkid=homeworkid)
+        HighestSimilarityC.objects.create(userida=userid, useridb="null", ansid=ansida, similarity=0.00, homeworkid=homeworkid)
     else:
+        useriddic=["","",""]
         for i in qs:
             ansid = i.get("ansid")
             temp = models.Answer.objects.get(ansid=ansid)
+            tempa = models.HighestSimilarityA.objects.get(ansid=ansid)
+            tempb = models.HighestSimilarityB.objects.get(ansid=ansid)
+            tempc = models.HighestSimilarityC.objects.get(ansid=ansid)
             data1 = algorithmSelect(i["answer"], dataselect)
             if (i.get("highsimilarityA") < data1[0]):
                 temp.highsimilarityA = data1[0]
+                tempa.similarity = data1[0]
+                tempa.useridb = userid
             if (i.get("highsimilarityB") < data1[1]):
                 temp.highsimilarityB = data1[1]
+                tempb.similarity = data1[1]
+                tempb.useridb = userid
             if (i.get("highsimilarityC") < data1[2]):
                 temp.highsimilarityC = data1[2]
+                tempc.similarity = data1[2]
+                tempc.useridb = userid
             temp.save()
+            tempa.save()
+            tempb.save()
+            tempc.save()
             if high[0] < data1[0]:
                 high[0] = data1[0]
+                useriddic[0] = i.get("userid")
             if high[1] < data1[1]:
                 high[1] = data1[1]
+                useriddic[1] = i.get("userid")
             if high[2] < data1[2]:
                 high[2] = data1[2]
+                useriddic[2] = i.get("userid")
         Answer.objects.create(userid=userid, questionid="0", question="作业id" + homeworkid + "的选择题",
                                   answer=dataselect,
                                   questiontype="1", highsimilarityA=high[0], highsimilarityB=high[1],
                                   highsimilarityC=high[2], questionnum=questionnum, homeworkid=homeworkid,
                                   selecttype="1")
-
-        # print(data1)
-        # print()
-        # print("处理本次提交中所有的选择题")
-    # print(dataselect)
+        temp = models.Answer.objects.get(userid=userid, homeworkid=homeworkid, selecttype="1")
+        ansida = temp.ansid
+        HighestSimilarityA.objects.create(userida=userid, useridb=useriddic[0], ansid=ansida, similarity=high[0], homeworkid=homeworkid)
+        HighestSimilarityB.objects.create(userida=userid, useridb=useriddic[1], ansid=ansida, similarity=high[1], homeworkid=homeworkid)
+        HighestSimilarityC.objects.create(userida=userid, useridb=useriddic[2], ansid=ansida, similarity=high[2], homeworkid=homeworkid)
 
     return HttpResponse('成功')
 
@@ -145,44 +209,73 @@ def submitcode(request):
     questionnum=request.POST.get("questionnum")
     homeworkid=request.POST.get("homeworkid")
     questionid=request.POST.get("questionid")
-    question=request.POST.get("question")
     questiontype = request.POST.get('questiontype')
     received_file = request.FILES.get("file")
     filename = os.path.join(MEDIA_ROOT, received_file.name)
     saveFile(received_file, filename)
     content=readFile(filename)
-    # print(readFile(filename))
+    print(readFile(filename))
     qs = Answer.objects.values()
     qs = qs.filter(questionid=questionid, homeworkid=homeworkid)
     os.remove(MEDIA_ROOT+received_file.name)
     high = [0, 0, 0]
+    question= models.QuestionBank.objects.get(questionid=questionid).question
     if qs.count() == 0:
         Answer.objects.create(userid=userid, questionid=questionid, question=question, answer=content,
                               questiontype=questiontype, highsimilarityA=0.00, highsimilarityB=0.00,
                               highsimilarityC=0.00, questionnum=questionnum, homeworkid=homeworkid)
+        temp = models.Answer.objects.get(userid=userid, questionid=questionid, question=question, answer=content,
+                                         homeworkid=homeworkid)
+        ansida = temp.ansid
+        HighestSimilarityA.objects.create(userida=userid, useridb="null", ansid=ansida, similarity=0.00, homeworkid=homeworkid)
+        HighestSimilarityB.objects.create(userida=userid, useridb="null", ansid=ansida, similarity=0.00, homeworkid=homeworkid)
+        HighestSimilarityC.objects.create(userida=userid, useridb="null", ansid=ansida, similarity=0.00, homeworkid=homeworkid)
     else:
+        useriddic=["","",""]
         for i in qs:
             ansid = i.get("ansid")
             temp = models.Answer.objects.get(ansid=ansid)
+            tempa = models.HighestSimilarityA.objects.get(ansid=ansid)
+            tempb = models.HighestSimilarityB.objects.get(ansid=ansid)
+            tempc = models.HighestSimilarityC.objects.get(ansid=ansid)
             # print(i["answer"])
             # print(content)
+
             data1 = algorithmAll(i["answer"], content)
             if (i.get("highsimilarityA") < data1[0]):
                 temp.highsimilarityA = data1[0]
+                tempa.similarity = data1[0]
+                tempa.useridb = userid
             if (i.get("highsimilarityB") < data1[1]):
                 temp.highsimilarityB = data1[1]
+                tempb.similarity = data1[1]
+                tempb.useridb = userid
             if (i.get("highsimilarityC") < data1[2]):
                 temp.highsimilarityC = data1[2]
+                tempc.similarity = data1[2]
+                tempc.useridb = userid
             temp.save()
+            tempa.save()
+            tempb.save()
+            tempc.save()
             if high[0] < data1[0]:
                 high[0] = data1[0]
+                useriddic[0] = i.get("userid")
             if high[1] < data1[1]:
                 high[1] = data1[1]
+                useriddic[1] = i.get("userid")
             if high[2] < data1[2]:
                 high[2] = data1[2]
+                useriddic[2] = i.get("userid")
+
         Answer.objects.create(userid=userid, questionid=questionid, question=question, answer=content,
                               questiontype=questiontype, highsimilarityA=high[0], highsimilarityB=high[1],
                               highsimilarityC=high[2], questionnum=questionnum, homeworkid=homeworkid)
+        temp = models.Answer.objects.get(userid=userid, questionid=questionid, question=question, answer=content)
+        ansida = temp.ansid
+        HighestSimilarityA.objects.create(userida=userid, useridb=useriddic[0], ansid=ansida, similarity=high[0], homeworkid=homeworkid)
+        HighestSimilarityB.objects.create(userida=userid, useridb=useriddic[1], ansid=ansida, similarity=high[1], homeworkid=homeworkid)
+        HighestSimilarityC.objects.create(userida=userid, useridb=useriddic[2], ansid=ansida, similarity=high[2], homeworkid=homeworkid)
 
     return HttpResponse('成功')
 
@@ -201,3 +294,34 @@ def readFile(filename):
 def courseSimilarity(courseid):
     data=[]
     return JsonResponse({"ret": 0, "data":data})
+
+
+def testcode( request):
+    userid = request.POST.get("userid")
+    questionid=request.POST.get("questionid")
+    received_file = request.FILES.get("file")
+    filename = os.path.join(MEDIA_ROOT, received_file.name)
+    saveFile(received_file, filename)
+    content = readFile(filename)
+    print(content)
+    print(userid)
+    print("isleghfliuewh"+questionid)
+    return HttpResponse("chg")
+
+def checksubmit(request):
+    userid = request.POST.get("userid")
+    homeworkid=request.POST.get("homeworkid")
+    try:
+        user = models.SubmitHomework.objects.get(userid=userid,homeworkid=homeworkid)
+        return HttpResponse("1")#有的话返回1，代表不能再做
+    except:
+        return HttpResponse("0")
+
+def getsubmitlist(request):
+    homeworkid = request.POST.get("homeworkid")
+    qs = SubmitHomework.objects.values()
+    qs = qs.filter(homeworkid=homeworkid)
+    data=[]
+    for i in qs:
+        data.append(i)
+    return JsonResponse({"ret": 0, "data":data}, json_dumps_params={'ensure_ascii': False},)

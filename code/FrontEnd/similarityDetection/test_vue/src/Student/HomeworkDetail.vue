@@ -67,28 +67,25 @@
              
               v-model="ruleForm.resource[index]"
             ></el-input> -->
-            <input
-              type="file"
-              id="avatar"
-              name="avatar"
-              accept="txt"
-              multiple
-              required
-              @change="changeFile"
-            />
+            <input type="file" @change="getFile($event)" />
+
+            <el-button type="primary" @click="post(item.questionid,item.questiontype)">确 定</el-button>
           </el-form-item>
         </div>
       </div>
 
       <!-- 提交函数  -->
 
-      <!-- <el-form-item style="text-align: center">
-          <el-button type="primary" @click="submitForm('ruleForm', false)"
+      <el-form-item >
+        
+          </el-form-item>
+    </el-form>
+    <div class="center"><el-button class="ebuton" type="primary" @click="submitAll()"
             >提交</el-button
           >
-        </el-form-item> -->
-    </el-form>
+        </div>
   </div>
+
 </template>
   
   <script>
@@ -97,6 +94,7 @@ import api from "@/api";
 export default {
   data() {
     return {
+      formData: new FormData(),
       homeworkname: localStorage.getItem("homeworkname"),
       ruleForm: { resource: [] },
       question: [],
@@ -106,6 +104,102 @@ export default {
     this.get();
   },
   methods: {
+    submitAll(){
+    var json={}
+    json.userid=localStorage.getItem("userid")
+    json.homeworkid=localStorage.getItem("homeworkid")
+    json.questionnum=localStorage.getItem("questionnum")
+    console.log(this.ruleForm.resource.length)
+    var jsondata=[]
+
+    for(var i=0;i<this.ruleForm.resource.length;i++){
+      var temp={};
+      if(temp.questiontype!="4"){
+      temp.questionid=this.question[i].questionid
+      temp.questiontype=this.question[i].questiontype
+      temp.question=this.question[i].question
+      temp.answer=this.ruleForm.resource[i]
+      jsondata.push(temp)
+      }
+    }
+    json.data=jsondata
+     console.log( json)
+      axios
+        .post( api.url +"/homework/submit/", json, {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
+        .then((success) => {
+          this.$message({ type: "success", message: success.data });
+          this.$router.push("stuhomework");
+        });
+     },
+    getFile(event) {
+      this.videoFile = event.currentTarget.files[0];
+    },
+    post(questionid,questiontype) {
+      let params = new FormData();
+      params.append("questionid", questionid);
+      params.append("userid", localStorage.getItem("userid"));
+      params.append("file", this.videoFile);
+      params.append("questionnum", localStorage.getItem("questionnum"));
+      params.append("homeworkid", localStorage.getItem("homeworkid"));
+      params.append("questiontype", questiontype);
+      axios
+        .post( api.url +"/homework/submitcode/", params, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        })
+        .then((success) => {
+          this.$message({ type: "success", message: success.data });
+        });
+    },
+
+    // toUploadFile() {
+    //   let btn = document.getElementById("unloadFile");
+    //   btn.click();
+    //   this.dialogVisible = false;
+    //   this.uploadPercent = 0;
+    //   this.onSubmit()
+    // },
+
+    // onSubmit() {
+
+    //   this.formData.append("questionnum", localStorage.getItem("questionnum"));
+    //   this.formData.append("userid", localStorage.getItem("userid"));
+    //   this.formData.append("homeworkid", localStorage.getItem("homeworkid"));
+    //   console.log(this.formData)
+    //   // axios
+    //   //   .post("/homework/submitcode/", this.formData)
+    //   //   .then((success) => {
+    //   //     this.$notify({
+    //   //       title: "成功",
+    //   //       message: success,
+    //   //       type: "success",
+    //   //     });
+    //   //     this.$router.push({ path: "/filemanage/data" });
+    //   //   })
+
+    // },
+    changeFile() {
+      axios
+        .post(
+          api.url + "/homework/submitcode/",
+          {
+            questionnum: localStorage.getItem("questionnum"),
+          },
+          {
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            emulateJSON: true,
+          }
+        )
+        .then((success) => {
+          //console.log(success.data);
+          this.question = success.data.data;
+        });
+    },
     get() {
       axios
         .post(
@@ -119,7 +213,7 @@ export default {
           }
         )
         .then((success) => {
-          console.log(success.data);
+          //console.log(success.data);
           this.question = success.data.data;
         });
     },
@@ -143,5 +237,14 @@ export default {
   width: fit-content;
   font-weight: 700;
   text-align: left;
+}
+.ebutton{
+  display: block;
+  margin: 0 auto;
+}
+.center{
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 </style>

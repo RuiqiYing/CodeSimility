@@ -18,7 +18,10 @@ import Movie from "@/components/MyMovie.vue"
 import StuInformation from "@/Student/StuInformathon.vue"
 import StuCourse from "@/Student/StuCourse.vue"
 import StuHomework from "@/Student/StuHomework.vue"
-import HomeworkDetail from"@/Student/HomeworkDetail.vue"
+import HomeworkDetail from "@/Student/HomeworkDetail.vue"
+import SubmittedStuend from "@/Home/HomeworkSubmited.vue"
+import SubmitView from "@/Home/SubmitView.vue"
+
 // 创建路由实例对象
 const router = createRouter({
     // 指定路由工作模式
@@ -31,6 +34,7 @@ const router = createRouter({
         { path: '/comparepage', component: CompareDetail },
         { path: '/movie', component: Movie },
         { path: '/homeworkdetail', component: HomeworkDetail },
+        { path: '/submitview', component: SubmitView },
         {
             path: '/home', component: Home, redirect: { name: "course" }, children: [
                 { path: '/about', name: 'about', component: About },
@@ -38,6 +42,7 @@ const router = createRouter({
                 { path: '/homework', name: 'homework', component: Homework },
                 { path: '/compare', name: 'compare', component: Compare },
                 { path: '/information', component: Infor },
+                { path: '/submitted', component: SubmittedStuend },
 
             ]
         },

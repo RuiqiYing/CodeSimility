@@ -30,6 +30,9 @@
             <el-button type="text" size="small" @click="check(scope.row)"
               >查看</el-button
             >
+            <el-button type="text" size="small" @click="checkSubmit(scope.row)"
+              >同学</el-button
+            >
             <el-button type="text" size="small" @click="deleteHomework(scope.row)"
               >删除</el-button
             ></template
@@ -114,6 +117,13 @@
             }
             this.tableData = jsonObj;
           });
+      },
+      checkSubmit(row){
+        console.log("11111111111")
+        this.$router.push('submitted')
+        localStorage.setItem('homeworkname',row.homeworkname)
+        localStorage.setItem('questionnum',row.questionnum)
+        localStorage.setItem('homeworkid',row.homeworkid)
       },
       check(row) {
         this.$router.push('detail')

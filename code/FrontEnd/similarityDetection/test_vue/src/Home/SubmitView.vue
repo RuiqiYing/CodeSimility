@@ -1,5 +1,5 @@
 <template>
-  <h2>{{ username1 }}个人主页</h2>
+  <h2>{{ username1 }}的{{ homeworkname }}提交情况</h2>
   <div class="flex1_div">
     <div class="infor_div">
       <div class="inforsmall_div" style="height: 220px">
@@ -79,9 +79,10 @@ import * as echarts from "echarts";
 export default {
   data() {
     return {
-      username1: localStorage.getItem("input1"),
+      username1: localStorage.getItem("goaluserid"),
       questionid: "",
-      value1: "",
+      homeworkname:localStorage.getItem("homeworkname"),
+      value1: localStorage.getItem("homeworkid"),
       value2: "",
       question: "",
       name: "",
