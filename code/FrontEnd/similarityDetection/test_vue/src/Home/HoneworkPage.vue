@@ -58,9 +58,9 @@
     </el-form>
     <template #footer>
       <span class="dialog-footer">
-        <el-button @click="dialogFormVisible = false">Cancel</el-button>
+        <el-button @click="dialogFormVisible = false">取消</el-button>
         <el-button type="primary" @click="creat()">
-          Confirm
+          确定
         </el-button>
       </span>
     </template>
@@ -119,14 +119,15 @@
           });
       },
       checkSubmit(row){
-        console.log("11111111111")
+        
         this.$router.push('submitted')
         localStorage.setItem('homeworkname',row.homeworkname)
         localStorage.setItem('questionnum',row.questionnum)
         localStorage.setItem('homeworkid',row.homeworkid)
       },
       check(row) {
-        this.$router.push('detail')
+        this.$router.push('checkall')
+        
         localStorage.setItem('homeworkname',row.homeworkname)
         localStorage.setItem('questionnum',row.questionnum)
         localStorage.setItem('homeworkid',row.homeworkid)

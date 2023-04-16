@@ -324,4 +324,82 @@ def getsubmitlist(request):
     data=[]
     for i in qs:
         data.append(i)
+    for i in data:
+        simi = HighestSimilarityC.objects.values()
+        simi = simi.filter(homeworkid=homeworkid, userida=i["userid"])
+        a = 0
+        all = 0
+        for j in simi:
+            all = all + 1
+            if (j["similarity"] == 1):
+                a = a + 1
+        similarityq = a / all
+        axis = {"similarity": round(similarityq,4)}
+        # axis = {"similarity": a}
+        i.update(axis)
+    data.sort(key = lambda x:x["similarity"])
+    data.reverse()
     return JsonResponse({"ret": 0, "data":data}, json_dumps_params={'ensure_ascii': False},)
+
+
+def getHomeworkSimilarity(request):
+    homeworkid=request.POST.get("homeworkid")
+    questionnum=request.POST.get("questionnum")
+    tempQ=QuestionBank.objects.values()
+    temp1=tempQ.filter(questionnum=questionnum)
+    homeworklen=1
+    for i in temp1:
+        if (i["questiontype"]!="1"):
+            homeworklen+=1
+    simi = HighestSimilarityC.objects.values()
+    simi = simi.filter(homeworkid=homeworkid)
+    if(len(simi)==0):
+        return HttpResponse("还没有同学提交")
+    else:
+        jsondata={}
+        sub=SubmitHomework.objects.values()
+        sub=sub.filter(homeworkid=homeworkid)
+        for i in sub:
+            jsondata[i["userid"]]=0
+        for i in simi:
+            if(i["similarity"]==1):
+                jsondata[i["userida"]]+=1
+        for i in sub:
+            jsondata[i["userid"]] = round(jsondata[i["userid"]]/homeworklen,4)
+        res = sorted(jsondata.items(), key=lambda jsondata: jsondata[1])
+        highsim=res[res.__len__()-1][1]
+        highid=res[res.__len__()-1][0]
+        lowsim=res[0][1]
+        lowid=res[0][0]
+        jsonquestion={}
+        questiondata=["选择题"]
+        for j in temp1:
+            if(j["questiontype"]!="1"):
+                questiondata.append(j["questionid"])
+        qs=Answer.objects.values()
+        qs=qs.filter(homeworkid=homeworkid)
+        for i in questiondata:
+            jsonquestion[str(i)]=[]
+        for i in qs:
+            if(i["questiontype"]!="1"):
+                if(i["highsimilarityC"]==1):
+                    p=simi.filter(ansid=i["ansid"])
+                    jsontemp={}
+                    jsontemp["userid"]=p[0]["userida"]
+                    jsonquestion[str(i["questionid"])].append(jsontemp)
+            if(i["selecttype"]=="1"):
+                if (i["highsimilarityC"] == 1):
+                    p=simi.filter(ansid=i["ansid"])
+                    jsontemp = {}
+                    jsontemp["userid"] = p[0]["userida"]
+                    jsonquestion["选择题"].append(jsontemp)
+        # print(jsonquestion)
+        lenlist=[]
+        namelist=[]
+        for i in jsonquestion.values():
+           lenlist.append(len(i))
+        for i in jsonquestion.keys():
+            namelist.append(i)
+        res = sorted(jsonquestion.items(), key=lambda jsonquestion: len(jsonquestion[1]),reverse=True)
+
+    return JsonResponse({"ret": 0, "highsim":highsim,"highid":highid,"lowsim":lowsim,"lowid":lowid,"jsondata":jsonquestion,"lenlist":lenlist,"namelist":namelist,"sortlist":res}, json_dumps_params={'ensure_ascii': False},)

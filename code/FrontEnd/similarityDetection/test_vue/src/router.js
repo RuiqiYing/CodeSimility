@@ -21,6 +21,7 @@ import StuHomework from "@/Student/StuHomework.vue"
 import HomeworkDetail from "@/Student/HomeworkDetail.vue"
 import SubmittedStuend from "@/Home/HomeworkSubmited.vue"
 import SubmitView from "@/Home/SubmitView.vue"
+import CheckAll from "@/Home/CheckAll.vue"
 
 // 创建路由实例对象
 const router = createRouter({
@@ -43,7 +44,7 @@ const router = createRouter({
                 { path: '/compare', name: 'compare', component: Compare },
                 { path: '/information', component: Infor },
                 { path: '/submitted', component: SubmittedStuend },
-
+                { path: '/checkall', component: CheckAll },
             ]
         },
         {

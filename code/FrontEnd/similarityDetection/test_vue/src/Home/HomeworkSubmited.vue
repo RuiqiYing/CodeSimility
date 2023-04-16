@@ -55,6 +55,7 @@
           homeworkid: "作业编号",
           questionnum:"题目编号",
           userid: "学号",
+          similarity:"相似度",
           ctime: "提交时间",
         },
         tableData: [],

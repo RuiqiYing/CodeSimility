@@ -12,5 +12,6 @@ urlpatterns = [
     path('testcode/',views.testcode),
     path('submittest/',views.submittest),
     path('checksubmit/',views.checksubmit),
-    path('getsubmitlist/',views.getsubmitlist)
+    path('getsubmitlist/',views.getsubmitlist),
+    path('getHomeworkSimilarity/',views.getHomeworkSimilarity),
 ]

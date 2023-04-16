@@ -35,6 +35,7 @@
           <div class="text_div">姓名1: {{ name1 }}</div>
           <div class="text_div">姓名2: {{ name2 }}</div>
           <div class="text_div">相似度:{{ similarity }}</div>
+          <div class="text_div">推荐算法:{{ tuijian }}</div>
           <div style="height: 20px"></div>
           <el-button
             class="button"
@@ -81,6 +82,7 @@ export default {
       username1: localStorage.getItem("input2"),
       username2: localStorage.getItem("input3"),
       questionid: "",
+      tuijian:"",
       value2: "",
       question: "",
       name1: "",
@@ -159,6 +161,7 @@ export default {
           // console.log(success.data)
           this.answer1 = success.data.answer1;
           this.answer2 = success.data.answer2;
+          this.tuijian=success.data.tuijian;
           this.similarity = success.data.similarity;
           this.question = success.data.question;
         });

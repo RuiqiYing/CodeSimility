@@ -1,5 +1,14 @@
 <template>
-  <h2>{{ username1 }}的{{ homeworkname }}提交情况</h2>
+  <div >
+    
+      <h2>{{ username1 }}的{{ homeworkname }}提交情况</h2>
+    
+    <!-- <div style="float: left; text-align: right; width: 10%; margin-top: 20px;">
+      <el-button class="new_btn" type="primary" @click="download()"
+        >下载</el-button
+      >
+    </div> -->
+  </div>
   <div class="flex1_div">
     <div class="infor_div">
       <div class="inforsmall_div" style="height: 220px">
@@ -51,24 +60,25 @@
     </div>
     <div class="information1111_div">
       <div id="myChart123" class="myChart123"></div>
-       <div class="formTableDiv"><el-table
-      :data="tableData11"
-      style="width: 100%"
-      stripe="true"
-      border="true"
-      :header-cell-style="{ 'text-align': 'center' }"
-      :cell-style="{ textAlign: 'center' }"
-    >
-      <el-table-column
-        :prop="index"
-        :label="item"
-        v-for="(item, index) in tableHeader"
-        :key="index"
-      >
-      </el-table-column>
-    </el-table></div> 
+      <div class="formTableDiv">
+        <el-table
+          :data="tableData11"
+          style="width: 100%"
+          stripe="true"
+          border="true"
+          :header-cell-style="{ 'text-align': 'center' }"
+          :cell-style="{ textAlign: 'center' }"
+        >
+          <el-table-column
+            :prop="index"
+            :label="item"
+            v-for="(item, index) in tableHeader"
+            :key="index"
+          >
+          </el-table-column>
+        </el-table>
+      </div>
     </div>
-    
   </div>
 </template>
   
@@ -81,19 +91,19 @@ export default {
     return {
       username1: localStorage.getItem("goaluserid"),
       questionid: "",
-      homeworkname:localStorage.getItem("homeworkname"),
+      homeworkname: localStorage.getItem("homeworkname"),
       value1: localStorage.getItem("homeworkid"),
       value2: "",
       question: "",
       name: "",
       ctime: "",
       chartData: [],
-      tableData11:[],
+      tableData11: [],
       infor: "",
       algorithm: "",
       answer1: "",
       answer2: "",
-      useriddata:[],
+      useriddata: [],
       dialogVisible: false,
       options1: [],
       tableHeader: {
@@ -125,6 +135,35 @@ export default {
   },
   mounted() {},
   methods: {
+    download() {
+      axios
+        .post(
+          "http://127.0.0.1:8000/getsimilarity/getfile/",
+          {},
+          {
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            emulateJSON: true,
+            responseType: "blob",
+          }
+        )
+        .then((res) => {
+          let blob = new Blob([res.data], {
+            type: "application/msword", //这里需要根据不同的文件格式写不同的参数
+          });
+
+          let eLink = document.createElement("a");
+          eLink.download = "111.xlsx"; //给文件名和指定格式,浏览器下载时看到的
+          eLink.style.display = "none";
+          eLink.href = URL.createObjectURL(blob);
+          document.body.appendChild(eLink);
+          eLink.click();
+          URL.revokeObjectURL(eLink.href);
+          document.body.removeChild(eLink);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    },
     get() {
       axios
         .post(
@@ -222,20 +261,19 @@ export default {
           }
         )
         .then((success) => {
-          this.tableData11=[]
+          this.tableData11 = [];
           //console.log(success.data);
           this.xAxis.data = success.data.id;
           this.chartData = success.data.similarity;
-          this.useriddata=success.data.useriddata;
+          this.useriddata = success.data.useriddata;
           this.drawChart();
-          for(var i=0;i<success.data.id.length;i++){
-            var json={}
-            json.questionid=success.data.id[i]
-            json.similarity=success.data.similarity[i]
-            json.userid=success.data.useriddata[i]
-            this.tableData11.push(json)
+          for (var i = 0; i < success.data.id.length; i++) {
+            var json = {};
+            json.questionid = success.data.id[i];
+            json.similarity = success.data.similarity[i];
+            json.userid = success.data.useriddata[i];
+            this.tableData11.push(json);
           }
-          
         });
     },
   },
@@ -255,7 +293,7 @@ export default {
     /*左边阴影  */ 2px 0px 0px 0px #e5e5e5,
     /*右边阴影 */ 0px 2px 0px 0px #e5e5e5; /*下边阴影 */
 }
-.myChart123{
+.myChart123 {
   height: 350px;
   width: 1000px;
 }
@@ -269,10 +307,9 @@ export default {
 .information1111_div {
   width: fit-content;
   /* margin-left: 20px; */
-  
 }
 
-.formTableDiv{
+.formTableDiv {
   width: 1000px;
   height: 350px;
   overflow: auto;

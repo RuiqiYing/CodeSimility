@@ -8,4 +8,5 @@ urlpatterns = [
     path('compare/',views.compare),
     path('getsimdetail/', views.getsimdetail),
     path('getstuhomeworksim/', views.getstuhomeworksim),
+    path('getfile/', views.getfile),
 ]
