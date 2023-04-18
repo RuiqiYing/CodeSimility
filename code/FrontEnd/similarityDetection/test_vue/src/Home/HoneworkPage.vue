@@ -50,9 +50,7 @@
           <el-option label="习题1" value="1" />
           <el-option label="习题2" value="2" />
           <el-option label="习题3" value="3" />
-          <el-option label="习题4" value="4" />
-          <el-option label="习题5" value="5" />
-          <el-option label="习题6" value="6" />
+          
         </el-select>
       </el-form-item>
     </el-form>

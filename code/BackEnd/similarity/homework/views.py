@@ -367,6 +367,7 @@ def getHomeworkSimilarity(request):
         for i in sub:
             jsondata[i["userid"]] = round(jsondata[i["userid"]]/homeworklen,4)
         res = sorted(jsondata.items(), key=lambda jsondata: jsondata[1])
+        print(res)
         highsim=res[res.__len__()-1][1]
         highid=res[res.__len__()-1][0]
         lowsim=res[0][1]
@@ -403,3 +404,17 @@ def getHomeworkSimilarity(request):
         res = sorted(jsonquestion.items(), key=lambda jsonquestion: len(jsonquestion[1]),reverse=True)
 
     return JsonResponse({"ret": 0, "highsim":highsim,"highid":highid,"lowsim":lowsim,"lowid":lowid,"jsondata":jsonquestion,"lenlist":lenlist,"namelist":namelist,"sortlist":res}, json_dumps_params={'ensure_ascii': False},)
+
+
+def checkAnswer(request):
+    homeworkid=request.POST.get("homeworkid")
+    userid = request.POST.get("userid")
+    qs = Answer.objects.values()
+    qs = qs.filter(homeworkid=homeworkid,userid=userid)
+    data = []
+    for i in qs:
+        if(i["selecttype"]!='1'):
+            data.append(i)
+    data.sort(key = lambda x:int(x["questionid"]))
+    return JsonResponse({'data': data}, json_dumps_params={'ensure_ascii': False}, )
+

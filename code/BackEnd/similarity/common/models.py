@@ -126,3 +126,12 @@ class SubmitHomework(models.Model):
     class Meta:
         managed = True
         db_table = 'submithomework'
+
+class HomeworkSimilarity(models.Model):
+    simid = models.AutoField(primary_key=True)
+    userid = models.CharField(max_length=255)
+    homeworkid = models.CharField(max_length=255)
+    similarity=models.FloatField(default=0.00)
+    class Meta:
+        managed = True
+        db_table = 'homeworksimilarity'

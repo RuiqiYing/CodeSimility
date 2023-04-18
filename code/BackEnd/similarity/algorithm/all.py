@@ -49,3 +49,5 @@ def algorithmSelect(a,b):
     else:
         temp=0
     return [sum/len(a),sum/len(a),temp]
+
+

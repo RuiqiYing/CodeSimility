@@ -22,6 +22,8 @@ import HomeworkDetail from "@/Student/HomeworkDetail.vue"
 import SubmittedStuend from "@/Home/HomeworkSubmited.vue"
 import SubmitView from "@/Home/SubmitView.vue"
 import CheckAll from "@/Home/CheckAll.vue"
+import ViewAnswer from "@/Home/ViewAnswer.vue"
+import CompareAnswer from "@/Home/CompareAnswer.vue"
 
 // 创建路由实例对象
 const router = createRouter({
@@ -36,6 +38,8 @@ const router = createRouter({
         { path: '/movie', component: Movie },
         { path: '/homeworkdetail', component: HomeworkDetail },
         { path: '/submitview', component: SubmitView },
+        { path: '/viewanswer', component: ViewAnswer },
+        { path: '/compareanswer', component: CompareAnswer },
         {
             path: '/home', component: Home, redirect: { name: "course" }, children: [
                 { path: '/about', name: 'about', component: About },

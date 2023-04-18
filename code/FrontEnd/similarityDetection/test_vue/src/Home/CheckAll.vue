@@ -29,24 +29,32 @@
           lowsim
         }}</el-text>
       </div>
-      <div class="smallbox">
+      <div class="smallbox" >
         相似度最高的题目
         <div class="zhanwei"></div>
-        <div class="div-small">
-          <div class="zhanwei"></div>
-          <div class="div-small1">1:{{ fri }}</div>
-          <div class="div-small1">人数:{{ frilen }}</div>
-        </div>
-        <div class="div-small">
-          <div class="zhanwei"></div>
-          <div class="div-small1">2:{{ sec }}</div>
-          <div class="div-small1">人数:{{ seclen }}</div>
-        </div>
-        <div class="div-small">
-          <div class="zhanwei"></div>
-          <div class="div-small1">3:{{ thr }}</div>
-          <div class="div-small1">人数:{{ thrlen }}</div>
-        </div>
+        <el-form
+          :model="ruleForm"
+          :rules="rules"
+          ref="ruleForm"
+          label-width="0px"
+          class="demo-ruleForm"
+        >
+          <div
+            class="VSTD_box_item"
+            v-for="(item, index) in sortlist"
+            :key="item.questionid"
+          >
+            <div>
+              <el-form-item label="" prop="resource">
+                <div class="zhanwei"></div>
+                <div class="div-small1">{{ index + 1 }} : {{ item[0] }}</div>
+                <div class="zhanwei"></div>
+                <div class="div-small1">人数:{{ item[1].length }}</div>
+              </el-form-item>
+            </div>
+          </div>
+        </el-form>
+        
       </div>
     </div>
     <div>
@@ -148,7 +156,7 @@ export default {
           });
 
           let eLink = document.createElement("a");
-          eLink.download = localStorage.getItem("homeworkname")+".xlsx"; //给文件名和指定格式,浏览器下载时看到的
+          eLink.download = localStorage.getItem("homeworkname") + ".xlsx"; //给文件名和指定格式,浏览器下载时看到的
           eLink.style.display = "none";
           eLink.href = URL.createObjectURL(blob);
           document.body.appendChild(eLink);
@@ -246,7 +254,6 @@ export default {
   height: 600px;
   width: 1050px;
   margin-top: 5%;
-  margin-left: 5%;
   margin-right: 2%;
   justify-content: center;
   align-items: center;
@@ -261,8 +268,7 @@ export default {
   width: 20px;
 }
 .div-small1 {
-  margin-left: 20px;
-  width: fit-content;
+  
 }
 
 .myChartall {
@@ -281,9 +287,13 @@ export default {
 .smallbox {
   height: 300px;
   width: 150px;
+  overflow:auto;
   box-shadow: 0px -0.5px 0px 0px #e5e5e5,
     /*上边阴影 */ -1.5px 0px 0px 0px #e5e5e5,
     /*左边阴影  */ 1.5px 0px 0px 0px #e5e5e5,
     /*右边阴影 */ 0px 3px 0px 0px #e5e5e5; /*下边阴影 */
 }
+.smallbox::-webkit-scrollbar {
+        width: 0px;
+    }
 </style>

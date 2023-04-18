@@ -1,8 +1,7 @@
 <template>
-  <div >
-    
-      <h2>{{ username1 }}的{{ homeworkname }}提交情况</h2>
-    
+  <div>
+    <h2>{{ username1 }}的{{ homeworkname }}提交情况</h2>
+
     <!-- <div style="float: left; text-align: right; width: 10%; margin-top: 20px;">
       <el-button class="new_btn" type="primary" @click="download()"
         >下载</el-button
@@ -55,6 +54,18 @@
           <el-button class="button" type="primary" @click="check()" plain
             >查看相似度</el-button
           >
+          <div style="height: 20px"></div>
+          <el-button class="button" type="primary" @click="checkanswer()" plain
+            >查看答案</el-button
+          >
+          <div style="height: 20px"></div>
+          <el-button
+            class="button"
+            type="primary"
+            @click="dialogFormVisible = true"
+            plain
+            >对比答案</el-button
+          >
         </div>
       </div>
     </div>
@@ -80,6 +91,23 @@
       </div>
     </div>
   </div>
+  <el-dialog
+    v-model="dialogFormVisible"
+    title="输入需要对比同学ID"
+    draggable="true"
+  >
+    <el-form :model="form">
+      <el-form-item label="同学ID" :label-width="formLabelWidth">
+        <el-input v-model="form.userid" autocomplete="off" />
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <span class="dialog-footer">
+        <el-button @click="dialogFormVisible = false">取消</el-button>
+        <el-button type="primary" @click="compareanswer()"> 确定 </el-button>
+      </span>
+    </template>
+  </el-dialog>
 </template>
   
   <script>
@@ -89,6 +117,18 @@ import * as echarts from "echarts";
 export default {
   data() {
     return {
+      form: {
+        userid:"",
+        name: "",
+        region: "",
+        date1: "",
+        date2: "",
+        delivery: false,
+        type: [],
+        resource: "",
+        desc: "",
+      },
+      dialogFormVisible: false,
       username1: localStorage.getItem("goaluserid"),
       questionid: "",
       homeworkname: localStorage.getItem("homeworkname"),
@@ -163,6 +203,11 @@ export default {
         .catch((err) => {
           console.log(err);
         });
+    },
+    compareanswer() {
+      this.dialogFormVisible = false;
+      localStorage.setItem("compareid",this.form.userid)
+      this.$router.push("compareanswer");
     },
     get() {
       axios
@@ -246,12 +291,15 @@ export default {
         myChart1.resize();
       });
     },
+    checkanswer() {
+      this.$router.push("viewanswer");
+    },
     check() {
       axios
         .post(
           api.url + "/getsimilarity/getstuhomeworksim/",
           {
-            userid: localStorage.getItem("input1"),
+            userid: localStorage.getItem("goaluserid"),
             homeworkid: this.value1,
             calculation: this.value2,
           },
@@ -281,6 +329,9 @@ export default {
 </script>
   
   <style >
+.button {
+  width: 90px;
+}
 .flex1_div {
   width: 90%;
   height: 700px;

@@ -9,4 +9,5 @@ urlpatterns = [
     path('getsimdetail/', views.getsimdetail),
     path('getstuhomeworksim/', views.getstuhomeworksim),
     path('getfile/', views.getfile),
+    path('getcompare/', views.getcompare),
 ]

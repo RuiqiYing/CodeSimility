@@ -123,7 +123,9 @@ export default {
         )
         .then((success) => {
           if (success.data == "1") {
-            this.$message({ type: "error", message: "本次作业已完成" });
+            this.$message({ type: "success", message: "本次作业已完成" });
+            this.$router.push("viewanswer");
+            localStorage.setItem("goaluserid", localStorage.getItem("userid"));
           } else {
             this.$router.push("homeworkdetail");
             localStorage.setItem("homeworkname", row.homeworkname);
