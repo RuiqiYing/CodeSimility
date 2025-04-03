@@ -5,6 +5,8 @@
 
 该项目是一个基于 **Django** 和 **Vue 3** 构建的相似度检测系统，主要用于学生作业提交的相似度检测与分析。系统分为**学生端**和**教师端**，其中学生端用于提交作业、查看作业成绩、查看推荐练习题等功能，而教师端则用于发布题目、管理班级、查看作业相似度等。
 
+项目的代码托管在 GitHub 上，访问链接：[Graduation Project - GitHub](https://github.com/RuiqiYing/Graduation-project_YingRuiqi)
+
 ## 技术栈
 
 - **后端**：Django
@@ -18,7 +20,7 @@
 
 1. 克隆项目：
    ```bash
-   git clone https://github.com/RuiqiYing/Graduation-Project.git
+   git clone https://github.com/RuiqiYing/Graduation-project_YingRuiqi.git
    cd Graduation-Project/code/BackEnd
    ```
 
@@ -57,10 +59,9 @@
 code/
   BackEnd/
     ├── .idea/                 # IDE 配置文件
-    ├── similarity/            # 处理相似度计算的功能模块
-    ├── db.sqlite3            # SQLite 数据库
-    ├── manage.py             # Django 项目管理文件
-    └── 常用操作.txt           # 后端常用操作文档
+    ├── similarity/            # 后端主要代码
+    ├── db.sqlite3             # SQLite 数据库
+    ├── manage.py              # Django 项目管理文件
 ```
 
 #### 前端
@@ -70,8 +71,9 @@ code/
   FrontEnd/
     ├── src/
     │   ├── assets/           # 静态资源
-    │   ├── components/       # Vue 组件
-    │   ├── views/            # 页面视图
+    │   ├── components/       # 公共组件
+    │   ├── Home/             # 教师端与学生端复用页面
+    │   ├── Student/          # 学生端页面
     ├── public/
     ├── package.json          # 前端依赖配置
     ├── vue.config.js         # Vue 配置文件
@@ -93,7 +95,7 @@ code/
 #### 教师端
 
 - **登录/注册**：
-  - 教师可以通过创建班级并发布题目。
+  - 根据按钮区分教师或学生，进入不同页面
 - **班级与作业管理**：
   - 可以发布题目，查看班级整体作业相似度。
   - 提供不同的算法选项，查看不同作业题目之间的相似度。
