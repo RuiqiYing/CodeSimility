@@ -71,6 +71,8 @@ export default {
         classname: "班级名称",
       },
       tableData: [],
+
+      debounceTimeout: null, // 用于存储防抖定时器
     };
   },
   created() {
@@ -101,77 +103,45 @@ export default {
       localStorage.setItem("courseid", row.courseid);
       this.$router.push("stuhomework");
     },
-    // deleteCourse(row) {
-    //   this.$confirm("此操作将永久删除, 是否继续?", "提示", {
-    //     confirmButtonText: "确定",
-    //     cancelButtonText: "取消",
-    //     type: "warning",
-    //   })
-    //     .then(() => {
-    //       axios
-    //         .post(
-    //           api.url + "/course/delete/",
-    //           {
-    //             courseid: row.courseid,
-    //           },
-    //           {
-    //             headers: {
-    //               "Content-Type": "application/x-www-form-urlencoded",
-    //             },
-    //             emulateJSON: true,
-    //           }
-    //         )
-    //         .then((res) => {
-    //           if (res.data === "删除成功") {
-    //             location.reload();
-    //             this.$message.success("删除成功！");
-    //           } else {
-    //             try {
-    //               this.$message.error(res.data);
-    //             } catch {
-    //               this.$message.error(res.data);
-    //             }
-    //           }
-    //         });
-    //     })
-    //     .catch(() => {
-    //       this.$message({
-    //         type: "info",
-    //         message: "已取消删除",
-    //       });
-    //     });
-    // },
     joinCourse() {
-      if (this.form.coursename === "") {
-        this.$message({ type: "info", message: "课程ID必须输入！" });
-      } else {
-        axios
-          .post(
-            this.api.url + "/stuCourse/join/",
-            {
-              userid: localStorage.getItem("userid"),
-              courseid: this.form.courseid,
-            },
-            {
-              headers: { "Content-Type": "application/x-www-form-urlencoded" },
-              emulateJSON: true,
-            }
-          )
-          .then((success) => {
-            if (success.data == "加入成功") {
-              this.$message({ type: "success", message: "加入成功" });
-              this.dialogFormVisible = false;
-              location.reload();
-            } else if (success.data == "课程不存在，检查课程ID") {
-              this.$message({
-                type: "error",
-                message: "课程不存在，检查课程ID",
-              });
-            } else if (success.data == "你已加入该课程") {
-              this.$message({ type: "error", message: "你已加入该课程" });
-            }
-          });
+      // 如果有之前的防抖定时器，清除它
+      if (this.debounceTimeout) {
+        clearTimeout(this.debounceTimeout);
       }
+
+      // 设置一个新的防抖定时器
+      this.debounceTimeout = setTimeout(() => {
+        if (this.form.courseid === "") {
+          this.$message({ type: "info", message: "课程ID必须输入！" });
+        } else {
+          axios
+            .post(
+              this.api.url + "/stuCourse/join/",
+              {
+                userid: localStorage.getItem("userid"),
+                courseid: this.form.courseid,
+              },
+              {
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                emulateJSON: true,
+              }
+            )
+            .then((success) => {
+              if (success.data == "加入成功") {
+                this.$message({ type: "success", message: "加入成功" });
+                this.dialogFormVisible = false;
+                location.reload();
+              } else if (success.data == "课程不存在，检查课程ID") {
+                this.$message({
+                  type: "error",
+                  message: "课程不存在，检查课程ID",
+                });
+              } else if (success.data == "你已加入该课程") {
+                this.$message({ type: "error", message: "你已加入该课程" });
+              }
+            });
+        }
+      }, 1000); // 防抖延迟时间：1秒
     },
   },
 };

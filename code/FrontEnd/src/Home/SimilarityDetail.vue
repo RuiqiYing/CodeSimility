@@ -71,7 +71,7 @@
   </el-dialog>
 </template>
   
-  <script>
+<script>
 import axios from "axios";
 import api from "@/api";
 import * as eacharts from "echarts";
@@ -85,7 +85,7 @@ export default {
         similarity: "相似度",
       },
       formLabelWidth: "140px",
-      yData: [0, 0, 0, 0, 0], //数据
+      yData: [0, 0, 0, 0, 0], // 数据
       update: true,
       value1: "",
       options: [1, 2, 3],
@@ -134,6 +134,7 @@ export default {
       chartBar: null,
       echartsCtx: null,
       chartsWrapperStyle: {},
+      debounceTimeout: null, // 用于存储防抖定时器
     };
   },
   created() {
@@ -155,6 +156,18 @@ export default {
   },
 
   methods: {
+    // 防抖函数
+    debounce(func, wait) {
+      return (...args) => {
+        if (this.debounceTimeout) {
+          clearTimeout(this.debounceTimeout); // 清除上一次的定时器
+        }
+        this.debounceTimeout = setTimeout(() => {
+          func(...args); // 延迟执行函数
+        }, wait);
+      };
+    },
+
     getinfor() {
       this.dialogTableVisible = true;
       axios
@@ -172,12 +185,16 @@ export default {
           }
         )
         .then((success) => {
-          this.gridData=[]
-          for (var i =0;i<success.data.data.length;i++){
-            var temp={similarity:success.data.data[i],userid:success.data.stuinfor[i]}
+          this.gridData = []
+          for (var i = 0; i < success.data.data.length; i++) {
+            var temp = { similarity: success.data.data[i], userid: success.data.stuinfor[i] }
             this.gridData.push(temp)
           }
         });
+    },
+
+    debouncedGetinfor() {
+      this.debounce(this.getinfor, 1000)();
     },
     getdata() {
       axios
@@ -194,7 +211,6 @@ export default {
           }
         )
         .then((success) => {
-          // var jsonObj = JSON.parse(JSON.stringify(success.data));
           console.log(success.data.data);
           var data = [
             { value: 0, name: "0%-20%" },
@@ -252,7 +268,6 @@ export default {
 
     initEcharts() {
       // 基本柱状图
-
       const myChart = eacharts.init(document.getElementById("chartBar"));
       myChart.setOption({
         title: {
@@ -278,7 +293,7 @@ export default {
           },
         },
       });
-      //随着屏幕大小调节图表
+      // 随着屏幕大小调节图表
       window.addEventListener("resize", () => {
         myChart.resize();
       });
@@ -342,6 +357,7 @@ export default {
   },
 };
 </script>
+
 
 <style scoped>
 .in_div {

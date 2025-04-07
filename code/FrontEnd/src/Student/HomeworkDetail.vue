@@ -99,12 +99,26 @@ export default {
       ruleForm: { resource: [] },
       question: [],
       videoFile: null, // 用于存储上传的视频文件
+      isSubmitting: false, // 用来判断是否正在提交，防止多次提交
     };
   },
   created() {
     this.get();
   },
   methods: {
+    // 自定义节流函数
+    throttle(func, wait) {
+      let timeout = null;
+      return (...args) => {
+        if (!timeout) {
+          timeout = setTimeout(() => {
+            func(...args);
+            timeout = null;
+          }, wait);
+        }
+      };
+    },
+
     submitAll() {
       const limit = pLimit(3); // 限制并发数量为 3
 

@@ -2,11 +2,6 @@
   <div>
     <h2>{{ username1 }}的{{ homeworkname }}提交情况</h2>
 
-    <!-- <div style="float: left; text-align: right; width: 10%; margin-top: 20px;">
-      <el-button class="new_btn" type="primary" @click="download()"
-        >下载</el-button
-      >
-    </div> -->
   </div>
   <div class="flex1_div">
     <div class="infor_div">
