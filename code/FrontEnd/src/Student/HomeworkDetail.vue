@@ -87,10 +87,10 @@
   </div>
 
 </template>
-  
-  <script>
+<script>
 import axios from "axios";
 import api from "@/api";
+import pLimit from 'p-limit';
 export default {
   data() {
     return {
@@ -98,91 +98,93 @@ export default {
       homeworkname: localStorage.getItem("homeworkname"),
       ruleForm: { resource: [] },
       question: [],
+      videoFile: null, // 用于存储上传的视频文件
     };
   },
   created() {
     this.get();
   },
   methods: {
-    submitAll(){
-    var json={}
-    json.userid=localStorage.getItem("userid")
-    json.homeworkid=localStorage.getItem("homeworkid")
-    json.questionnum=localStorage.getItem("questionnum")
-    console.log(this.ruleForm.resource.length)
-    var jsondata=[]
+    submitAll() {
+      const limit = pLimit(3); // 限制并发数量为 3
 
-    for(var i=0;i<this.ruleForm.resource.length;i++){
-      var temp={};
-      if(temp.questiontype!="4"){
-      temp.questionid=this.question[i].questionid
-      temp.questiontype=this.question[i].questiontype
-      temp.question=this.question[i].question
-      temp.answer=this.ruleForm.resource[i]
-      jsondata.push(temp)
+      const json = {
+        userid: localStorage.getItem("userid"),
+        homeworkid: localStorage.getItem("homeworkid"),
+        questionnum: localStorage.getItem("questionnum"),
+        data: [],
+      };
+
+      const promises = [];
+
+      // 循环处理每一个题目
+      for (let i = 0; i < this.ruleForm.resource.length; i++) {
+        const questionItem = this.question[i];
+        const answer = this.ruleForm.resource[i];
+
+        // 如果是非视频类题目（questiontype != "4"）
+        if (questionItem.questiontype !== "4") {
+          const temp = {
+            questionid: questionItem.questionid,
+            questiontype: questionItem.questiontype,
+            question: questionItem.question,
+            answer: answer,
+          };
+          json.data.push(temp);
+        } else {
+          // 对视频类题目使用并发控制上传
+          const uploadPromise = limit(() => this.post(questionItem.questionid, questionItem.questiontype));
+          promises.push(uploadPromise);
+        }
       }
-    }
-    json.data=jsondata
-     console.log( json)
+
+      // 提交非视频类题目
       axios
-        .post( api.url +"/homework/submit/", json, {
+        .post(api.url + "/homework/submit/", json, {
           headers: {
             "Content-Type": "application/json",
           },
         })
         .then((success) => {
-          this.$message({ type: "success", message: success.data });
+          this.$message({ type: "success", message: "主观题提交成功：" + success.data });
+
+          // 并行提交视频题目并等待全部完成
+          return Promise.all(promises);
+        })
+        .then(() => {
+          this.$message({ type: "success", message: "所有视频题目提交成功" });
           this.$router.push("stuhomework");
+        })
+        .catch((err) => {
+          this.$message.error("提交过程中发生错误：" + err);
         });
-     },
+    },
+
+    // 获取文件
     getFile(event) {
       this.videoFile = event.currentTarget.files[0];
     },
-    post(questionid,questiontype) {
-      let params = new FormData();
+
+    // 上传视频文件
+    post(questionid, questiontype) {
+      const params = new FormData();
       params.append("questionid", questionid);
       params.append("userid", localStorage.getItem("userid"));
-      params.append("file", this.videoFile);
+      params.append("file", this.videoFile); // 你可以改为视频文件数组，处理多个文件
       params.append("questionnum", localStorage.getItem("questionnum"));
       params.append("homeworkid", localStorage.getItem("homeworkid"));
       params.append("questiontype", questiontype);
-      axios
-        .post( api.url +"/homework/submitcode/", params, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        })
-        .then((success) => {
-          this.$message({ type: "success", message: success.data });
-        });
+
+      return axios.post(api.url + "/homework/submitcode/", params, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }).then((success) => {
+        this.$message({ type: "success", message: success.data });
+      });
     },
 
-    // toUploadFile() {
-    //   let btn = document.getElementById("unloadFile");
-    //   btn.click();
-    //   this.dialogVisible = false;
-    //   this.uploadPercent = 0;
-    //   this.onSubmit()
-    // },
-
-    // onSubmit() {
-
-    //   this.formData.append("questionnum", localStorage.getItem("questionnum"));
-    //   this.formData.append("userid", localStorage.getItem("userid"));
-    //   this.formData.append("homeworkid", localStorage.getItem("homeworkid"));
-    //   console.log(this.formData)
-    //   // axios
-    //   //   .post("/homework/submitcode/", this.formData)
-    //   //   .then((success) => {
-    //   //     this.$notify({
-    //   //       title: "成功",
-    //   //       message: success,
-    //   //       type: "success",
-    //   //     });
-    //   //     this.$router.push({ path: "/filemanage/data" });
-    //   //   })
-
-    // },
+    // 获取题目列表
     changeFile() {
       axios
         .post(
@@ -196,10 +198,11 @@ export default {
           }
         )
         .then((success) => {
-          //console.log(success.data);
           this.question = success.data.data;
         });
     },
+
+    // 获取题目
     get() {
       axios
         .post(
@@ -213,7 +216,6 @@ export default {
           }
         )
         .then((success) => {
-          //console.log(success.data);
           this.question = success.data.data;
         });
     },

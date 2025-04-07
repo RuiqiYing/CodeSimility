@@ -109,8 +109,8 @@
     </template>
   </el-dialog>
 </template>
-  
-  <script>
+
+<script>
 import axios from "axios";
 import api from "@/api";
 import * as echarts from "echarts";
@@ -118,7 +118,7 @@ export default {
   data() {
     return {
       form: {
-        userid:"",
+        userid: "",
         name: "",
         region: "",
         date1: "",
@@ -175,6 +175,7 @@ export default {
   },
   mounted() {},
   methods: {
+    // 下载文件
     download() {
       axios
         .post(
@@ -188,11 +189,11 @@ export default {
         )
         .then((res) => {
           let blob = new Blob([res.data], {
-            type: "application/msword", //这里需要根据不同的文件格式写不同的参数
+            type: "application/msword", // 这里需要根据不同的文件格式写不同的参数
           });
 
           let eLink = document.createElement("a");
-          eLink.download = "111.xlsx"; //给文件名和指定格式,浏览器下载时看到的
+          eLink.download = "111.xlsx"; // 给文件名和指定格式，浏览器下载时看到的
           eLink.style.display = "none";
           eLink.href = URL.createObjectURL(blob);
           document.body.appendChild(eLink);
@@ -204,14 +205,21 @@ export default {
           console.log(err);
         });
     },
+
+    // 比较答案
     compareanswer() {
       this.dialogFormVisible = false;
-      localStorage.setItem("compareid",this.form.userid)
+      localStorage.setItem("compareid", this.form.userid);
       this.$router.push("compareanswer");
     },
+
+    // 获取数据
     get() {
-      axios
-        .post(
+      const limit = pLimit(2); // 限制并发请求数量为 2
+
+      // 请求 1: 获取用户名
+      const request1 = limit(() =>
+        axios.post(
           api.url + "/information/getusername/",
           {
             userid: localStorage.getItem("input1"),
@@ -221,12 +229,11 @@ export default {
             emulateJSON: true,
           }
         )
-        .then((success) => {
-          this.name1 = success.data;
-        });
+      );
 
-      axios
-        .post(
+      // 请求 2: 获取作业名称
+      const request2 = limit(() =>
+        axios.post(
           api.url + "/information/gethomeworkname/",
           {
             userid: localStorage.getItem("input1"),
@@ -236,18 +243,11 @@ export default {
             emulateJSON: true,
           }
         )
-        .then((success) => {
-          var i;
-          for (i = 0; i < success.data.data.length; i++) {
-            this.options1.push({
-              value: success.data.homeworkid[i],
-              label: success.data.data[i],
-            });
-          }
-        });
+      );
 
-      axios
-        .post(
+      // 请求 3: 获取用户信息
+      const request3 = limit(() =>
+        axios.post(
           api.url + "/information/getallinfor/",
           {
             userid: localStorage.getItem("input1"),
@@ -257,12 +257,27 @@ export default {
             emulateJSON: true,
           }
         )
-        .then((success) => {
-          this.name = success.data.username;
-          this.ctime = success.data.ctime.slice(0, 9);
-          this.infor = success.data.information;
+      );
+
+      // 并行执行这些请求
+      Promise.all([request1, request2, request3])
+        .then(([nameResponse, homeworkResponse, userInfoResponse]) => {
+          this.name1 = nameResponse.data;
+          const homeworkData = homeworkResponse.data;
+          this.options1 = homeworkData.data.map((homework, index) => ({
+            value: homeworkData.homeworkid[index],
+            label: homework,
+          }));
+          this.name = userInfoResponse.data.username;
+          this.ctime = userInfoResponse.data.ctime.slice(0, 9);
+          this.infor = userInfoResponse.data.information;
+        })
+        .catch((error) => {
+          console.error("Error occurred:", error);
         });
     },
+
+    // 绘制图表
     drawChart() {
       let myChart1 = echarts.init(document.getElementById("myChart123"));
       myChart1.setOption({
@@ -277,26 +292,24 @@ export default {
           },
         ],
       });
-      // myChart1.on("click", function (params) {
-      //   //用于做每个点的监听，只用点击点才能够获取想要的监听效果；
-      //   let data = {
-      //     x: params.name,
-      //     y: params.data,
-      //   };
-      //   console.log(data);
-      //   alert(JSON.stringify(data));
-      // });
 
       window.addEventListener("resize", () => {
         myChart1.resize();
       });
     },
+
+    // 查看答案
     checkanswer() {
       this.$router.push("viewanswer");
     },
+
+    // 获取作业相似度
     check() {
-      axios
-        .post(
+      const limit = pLimit(2); // 限制并发请求数量为 2
+
+      // 请求 1: 获取作业相似度
+      const request1 = limit(() =>
+        axios.post(
           api.url + "/getsimilarity/getstuhomeworksim/",
           {
             userid: localStorage.getItem("goaluserid"),
@@ -308,27 +321,33 @@ export default {
             emulateJSON: true,
           }
         )
+      );
+
+      // 并行执行请求
+      request1
         .then((success) => {
           this.tableData11 = [];
-          //console.log(success.data);
           this.xAxis.data = success.data.id;
           this.chartData = success.data.similarity;
           this.useriddata = success.data.useriddata;
           this.drawChart();
-          for (var i = 0; i < success.data.id.length; i++) {
-            var json = {};
-            json.questionid = success.data.id[i];
-            json.similarity = success.data.similarity[i];
-            json.userid = success.data.useriddata[i];
-            this.tableData11.push(json);
+          for (let i = 0; i < success.data.id.length; i++) {
+            this.tableData11.push({
+              questionid: success.data.id[i],
+              similarity: success.data.similarity[i],
+              userid: success.data.useriddata[i],
+            });
           }
+        })
+        .catch((error) => {
+          console.error("Error occurred:", error);
         });
     },
   },
 };
 </script>
-  
-  <style >
+
+<style>
 .button {
   width: 90px;
 }
