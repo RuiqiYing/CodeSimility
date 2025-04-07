@@ -131,6 +131,7 @@
 <script >
 import axios from "axios";
 import api from "@/api";
+import { encryptPassword, decryptPassword } from '@/cryptoUtils';
 export default {
   name: "LoginPage",
   props: {
@@ -140,14 +141,8 @@ export default {
   data: function () {
     return {
       options: [
-        {
-          value: "0",
-          label: "教师",
-        },
-        {
-          value: "1",
-          label: "学生",
-        },
+        { value: "0", label: "教师" },
+        { value: "1", label: "学生" },
       ],
       value: "",
       form: {
@@ -178,18 +173,35 @@ export default {
         ],
         password: [{ required: true, message: "请输入密码", trigger: "blur" }],
       },
+
+      // 添加初始的登录态信息
+      loggedIn: false,  // 是否登录
+      storedUserId: null,  // 存储的用户id
+      storedRole: null,    // 存储的角色
+      storedPassword: null, // 存储的加密密码
     };
   },
 
   created() {
-    localStorage.setItem("username", "");
-    localStorage.setItem("userid", "");
-    localStorage.setItem("role", "");
-    localStorage.setItem("pwd", "");
+    // 页面加载时检查登录态
+    const userId = localStorage.getItem("userid");
+    const role = localStorage.getItem("role");
+    const password = localStorage.getItem("pwd");
+
+    if (userId && role && password) {
+      // 如果localStorage中有用户信息，说明用户已经登录，恢复登录态
+      this.storedUserId = userId;
+      this.storedRole = role;
+      this.storedPassword = password;
+      this.loggedIn = true;
+    }
   },
+
   methods: {
+    // 注册时加密密码
     register() {
-      //注册
+      const encryptedPassword = encryptPassword(this.registerForm.password); // 加密密码
+
       if (this.registerForm.id === "") {
         this.$message({ type: "info", message: "用户名必须输入！" });
       } else if (this.registerForm.password === "") {
@@ -204,7 +216,7 @@ export default {
             api.url + "/login/register/",
             {
               userid: this.registerForm.id,
-              password: this.registerForm.password,
+              password: encryptedPassword, // 发送加密后的密码
               role: this.registerForm.role,
               username: this.registerForm.username,
             },
@@ -222,41 +234,11 @@ export default {
           });
       }
     },
-    forget() {
-     
-      if (this.form.id === "") {
-          this.$message({ type: "info", message: "用户名必须输入！" });
-      } else if (this.form.newpwd === "") {
-          this.$message({ type: "info", message: "密码必须输入！" });
-      } else {
 
-        axios
-          .post(
-              this.api.url + "/login/pwd_update/",
-              { userid: this.form.id, password: this.form.newpwd },
-              {
-                  headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                  emulateJSON: true,
-              }
-          )
-          .then((success) => {
-              if (success.data == '修改成功') {
-                  this.$message({ type: "success", message: "修改成功" });
-
-              } else if (success.data == '新旧密码相同') {
-
-                  this.$message({ type: "error", message: "新旧密码相同" });
-              }
-              else if (success.data == '用户名不存在！') {
-                  this.$message({ type: "error", message: "用户名不存在" });
-              }
-          });
-      }
-    },
-    jump(){
-      this.$router.push('movie')
-    },
+    // 登录时加密密码
     submit() {
+      const encryptedPassword = encryptPassword(this.ruleForm.password); // 加密密码
+
       if (this.ruleForm.username === "") {
         this.$message({ type: "info", message: "用户名必须输入！" });
       } else if (this.ruleForm.password === "") {
@@ -267,7 +249,7 @@ export default {
             api.url + "/login/",
             {
               userid: this.ruleForm.username,
-              password: this.ruleForm.password,
+              password: encryptedPassword, // 发送加密后的密码
               role: this.value,
             },
             {
@@ -277,18 +259,24 @@ export default {
           )
           .then((response) => {
             if (response.data == "登录成功") {
-                localStorage.setItem("userid",this.ruleForm.username);
-                localStorage.setItem("pwd",this.ruleForm.password);
-                localStorage.setItem("role",this.value);
-                //this.$message({ type: "info", message:this.value });
+              // 将用户信息存储到 localStorage 中
+              localStorage.setItem("userid", this.ruleForm.username);
+              localStorage.setItem("pwd", encryptedPassword); // 存储加密后的密码
+              localStorage.setItem("role", this.value);
+
+              this.storedUserId = this.ruleForm.username;
+              this.storedRole = this.value;
+              this.storedPassword = encryptedPassword;
+              this.loggedIn = true;  // 设置为已登录
+
               this.$message({ type: "info", message: response.data });
-              if(this.value==0){
-                this.$router.push('home')
-              }else if(this.value==1){
-                this.$router.push('stuhome')
+
+              if (this.value == 0) {
+                this.$router.push("home");
+              } else if (this.value == 1) {
+                this.$router.push("stuhome");
               }
-              
-            } else if (response.data != "登录成功") {
+            } else {
               this.$message({ type: "info", message: response.data });
             }
           })
@@ -298,9 +286,53 @@ export default {
       }
     },
 
-    // cancel() {
-    //     this.$router.push({ path: "/" });
-    // },
+    // 密码修改时加密新密码
+    forget() {
+      const encryptedPassword = encryptPassword(this.form.newpwd); // 加密新密码
+
+      if (this.form.id === "") {
+        this.$message({ type: "info", message: "用户名必须输入！" });
+      } else if (this.form.newpwd === "") {
+        this.$message({ type: "info", message: "密码必须输入！" });
+      } else {
+        axios
+          .post(
+            this.api.url + "/login/pwd_update/",
+            { userid: this.form.id, password: encryptedPassword }, // 发送加密后的密码
+            {
+              headers: { "Content-Type": "application/x-www-form-urlencoded" },
+              emulateJSON: true,
+            }
+          )
+          .then((success) => {
+            if (success.data == "修改成功") {
+              this.$message({ type: "success", message: "修改成功" });
+            } else if (success.data == "新旧密码相同") {
+              this.$message({ type: "error", message: "新旧密码相同" });
+            } else if (success.data == "用户名不存在！") {
+              this.$message({ type: "error", message: "用户名不存在" });
+            }
+          });
+      }
+    },
+
+    // 清除登录态
+    logout() {
+      localStorage.removeItem("userid");
+      localStorage.removeItem("pwd");
+      localStorage.removeItem("role");
+
+      this.storedUserId = null;
+      this.storedRole = null;
+      this.storedPassword = null;
+      this.loggedIn = false;
+
+      this.$router.push("login");  // 跳转到登录页面
+    },
+
+    jump() {
+      this.$router.push("movie");
+    },
   },
 };
 </script>
