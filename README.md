@@ -1,11 +1,11 @@
 
-# Graduation Project - Similarity Check System
+# Similarity Check System
 
 ## 项目介绍
 
 该项目是一个基于 **Django** 和 **Vue 3** 构建的相似度检测系统，主要用于学生作业提交的相似度检测与分析。系统分为**学生端**和**教师端**，其中学生端用于提交作业、查看作业成绩、查看推荐练习题等功能，而教师端则用于发布题目、管理班级、查看作业相似度等。
 
-项目的代码托管在 GitHub 上，访问链接：[Graduation Project - GitHub](https://github.com/RuiqiYing/Graduation-project_YingRuiqi)
+项目的代码托管在 GitHub 上，访问链接：[Graduation Project - GitHub](https://github.com/RuiqiYing/CodeSimility)
 
 ## 技术栈
 
@@ -41,7 +41,7 @@
 
 ### 前端安装与配置
 
-1. 在 `Graduation-Project/code/FrontEnd` 目录下，使用以下命令安装前端依赖：
+1. 在 `code/FrontEnd` 目录下，使用以下命令安装前端依赖：
    ```bash
    npm install
    ```
